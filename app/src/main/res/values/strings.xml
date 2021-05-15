@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">KidsWarmUp</string>
+    <string name="device_admin_receiver_label">KidsWarmUp</string>
+    <string name="device_admin_receiver_description">Used to lock user in KidsWarmUp app</string>
+    <string name="button_stop_label">Stop</string>
+    <string name="button_start_label">Start</string>
+    <string name="default_steps_setup" translatable="false">1</string>
+    <string name="steps_count_hint">Desired steps count</string>
+    <string name="enable_device_admin">\"Please enable device admin\"</string>
+    <string name="set_lock_packages_failed">\"setLockTaskPackages() failed. Is app a Device Owner?\"</string>
+    <string name="set_lock_features_failed">\"setLockTaskFeatures() failed. Is app a Device Owner?\"</string>
+    <string name="app_is_not_device_admin">App is not a Device Admin!</string>
+    <string name="app_is_device_admin">App is a Device Admin</string>
+</resources>
