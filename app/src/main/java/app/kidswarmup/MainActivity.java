@@ -13,9 +13,12 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.DataOutputStream;
 
@@ -32,12 +35,14 @@ public class MainActivity extends Activity implements View.OnGenericMotionListen
     private static final String TAG = MainActivity.class.getSimpleName();
     private Context appContext;
     private boolean rootPresent = false;
+    private FrameLayout mainFrame;
     private TextView stepsCurrentTextView;
     private TextView stepsTargetTextView;
     private ProgressBar progressBar;
     private EditText stepsTargetEditText;
     private Button buttonStart;
     private Button buttonStop;
+    private FloatingActionButton buttonMenu;
     private int stepsCurrent = 0;
     private int stepsTarget = 0;
     private boolean configured = false;
@@ -49,8 +54,10 @@ public class MainActivity extends Activity implements View.OnGenericMotionListen
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        findViewById(R.id.mainFrame).setOnGenericMotionListener(this);
-        findViewById(R.id.mainFrame).setOnKeyListener(this);
+        mainFrame = findViewById(R.id.mainFrame);
+        mainFrame.setOnGenericMotionListener(this);
+        mainFrame.setOnKeyListener(this);
+        //mainFrame.getContext();
         stepsCurrentTextView = findViewById(R.id.steps_left);
         stepsTargetEditText = findViewById(R.id.steps_setup);
         progressBar = findViewById(R.id.progressBar);
@@ -59,6 +66,8 @@ public class MainActivity extends Activity implements View.OnGenericMotionListen
         buttonStart.setOnClickListener(this);
         buttonStop = findViewById(R.id.button_stop);
         buttonStop.setOnClickListener(this);
+        buttonMenu = findViewById(R.id.menu_btn);
+        buttonMenu.setOnClickListener(this);
         appContext = getApplicationContext();
         rootPresent = checkRootAvailability();
         dpm = (DevicePolicyManager) getSystemService(DEVICE_POLICY_SERVICE);
@@ -171,6 +180,15 @@ public class MainActivity extends Activity implements View.OnGenericMotionListen
             onStartButtonClick();
         if (id == R.id.button_stop)
             onStopButtonClick();
+        if (id == R.id.menu_btn)
+            onMenuButtonClick();
+    }
+
+    private void onMenuButtonClick() {
+        //PasswordDialog.show(appContext);
+        //PasswordDialog.show(mainFrame.getContext());
+        Intent i = new Intent(MainActivity.this, SettingsActivity.class);
+        startActivity(i);
     }
 
     private void onStopButtonClick() {

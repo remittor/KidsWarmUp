@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mainFrame"
     android:layout_width="match_parent"
@@ -44,15 +45,36 @@
         <Button
             android:id="@+id/button_start"
             android:layout_width="match_parent"
-            android:layout_height="0sp"
-            android:layout_weight="1"
+            android:layout_height="38dp"
             android:text="@string/button_start_label" />
 
         <Button
             android:id="@+id/button_stop"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="38dp"
             android:text="@string/button_stop_label" />
+
+        <FrameLayout
+            android:id="@+id/bottom_frame"
+            android:layout_width="match_parent"
+            android:layout_height="211dp">
+
+            <ImageView
+                android:id="@+id/imageView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:scaleType="fitCenter"
+                android:src="@drawable/stepper1" />
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/menu_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|right"
+                android:clickable="true"
+                android:src="@android:drawable/ic_dialog_dialer" />
+
+        </FrameLayout>
 
     </LinearLayout>
 </FrameLayout>
