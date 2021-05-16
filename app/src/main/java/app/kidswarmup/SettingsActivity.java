@@ -1,6 +1,10 @@
 package app.kidswarmup;
 
+import android.app.Activity;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.Toast;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
@@ -8,7 +12,11 @@ import androidx.fragment.app.Fragment;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 
-public class SettingsActivity extends AppCompatActivity implements PreferenceFragmentCompat.OnPreferenceStartFragmentCallback {
+import app.kidswarmup.MainActivity;
+
+public class SettingsActivity extends AppCompatActivity implements
+    PreferenceFragmentCompat.OnPreferenceStartFragmentCallback,
+    View.OnClickListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,4 +61,13 @@ public class SettingsActivity extends AppCompatActivity implements PreferenceFra
             setPreferencesFromResource(R.xml.pref_devadm, rootKey);
         }
     }
+
+    public void onClick(View view) {
+        int id = view.getId();
+        if (id == R.id.devadm_install_button)
+            Toast.makeText(this, "devadm_install_button", Toast.LENGTH_LONG).show();
+        if (id == R.id.devadm_delete_button)
+            Toast.makeText(this, "devadm_delete_button", Toast.LENGTH_LONG).show();
+    }
+    
 }

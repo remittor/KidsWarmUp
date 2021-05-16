@@ -23,6 +23,7 @@ import androidx.core.view.InputDeviceCompat;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.DataOutputStream;
+import java.lang.reflect.Method;
 
 import static android.app.admin.DevicePolicyManager.LOCK_TASK_FEATURE_BLOCK_ACTIVITY_START_IN_TASK;
 import static android.view.InputDevice.SOURCE_KEYBOARD;
@@ -45,6 +46,8 @@ public class MainActivity extends Activity implements View.OnGenericMotionListen
     private Button buttonStart;
     private Button buttonStop;
     private FloatingActionButton buttonMenu;
+    private Button buttonDevAdmInstall;
+    private Button buttonDevAdmDelete;
     private int stepsCurrent = 0;
     private int stepsTarget = 0;
     private boolean configured = false;
@@ -125,17 +128,18 @@ public class MainActivity extends Activity implements View.OnGenericMotionListen
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
         int source = event.getSource();
-        if (source == SOURCE_KEYBOARD) {
+        while (source == SOURCE_KEYBOARD) {
             if ((prevButton == 0 || prevButton == KeyEvent.KEYCODE_X) && keyCode == KeyEvent.KEYCODE_Z) {
                 countStep();
                 prevButton = keyCode;
-                return false;
+                break;
             }
             if ((prevButton == 0 || prevButton == KeyEvent.KEYCODE_Z) && keyCode == KeyEvent.KEYCODE_X) {
                 countStep();
                 prevButton = keyCode;
-                return false;
+                break;
             }
+            break;
         }
         return super.onKeyUp(keyCode, event);
     }
@@ -184,8 +188,7 @@ public class MainActivity extends Activity implements View.OnGenericMotionListen
     }
 
     private void onMenuButtonClick() {
-        //PasswordDialog.show(appContext);
-        //PasswordDialog.show(mainFrame.getContext());
+        //PasswordDialog.show(mainFrame.getContext(), "123");
         Intent i = new Intent(MainActivity.this, SettingsActivity.class);
         startActivity(i);
     }

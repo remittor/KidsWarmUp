@@ -1,7 +1,10 @@
 package app.kidswarmup;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -11,9 +14,8 @@ import android.widget.EditText;
 import androidx.appcompat.app.AlertDialog;
 
 public class PasswordDialog {
-    //private String m_Text = "";
 
-    public static void show(Context ctx) {
+    public static void show(Context ctx, String pwd) {
         AlertDialog.Builder builder = new AlertDialog.Builder(ctx);
         builder.setTitle("Enter password");
         // Set up the input
@@ -25,7 +27,13 @@ public class PasswordDialog {
         builder.setPositiveButton("Enter", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                String m_Text = input.getText().toString();
+                String txt = input.getText().toString();
+                dialog.dismiss();
+                if (txt.equals(pwd)) {
+                    Activity mainActivity = getActivity(ctx);
+                    Intent i = new Intent(mainActivity, SettingsActivity.class);
+                    mainActivity.startActivity(i);
+                }
             }
         });
         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -38,60 +46,15 @@ public class PasswordDialog {
         builder.show();
     }
 
-    /*
-    public void show(Context context)
-    {
-        LayoutInflater li = LayoutInflater.from(context);
-        View promptsView = li.inflate(R.layout.searchprompt, null);
-        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
-        alertDialogBuilder.setView(promptsView);
+    public static Activity getActivity(Context context) {
+        if (context == null)
+            return null;
+        if (context instanceof ContextWrapper) {
+            if (context instanceof Activity)
+                return (Activity) context;
+            return getActivity(((ContextWrapper) context).getBaseContext());
+        }
+        return null;
+    }
 
-        final EditText userInput = (EditText) promptsView.findViewById(R.id.user_input);
-
-        // set dialog message
-        alertDialogBuilder
-            .setCancelable(false)
-            .setNegativeButton("Enter",
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog,int id) {
-                        String user_text = (userInput.getText()).toString();
-
-                        if (user_text.equals("1234"))
-                        {
-                            Log.d(user_text, "Enter into Menu");
-                            //Search_Tips(user_text);
-                        }
-                        else {
-                            Log.d(user_text,"Incorrect password");
-                            /*
-                            String message = "The password you have entered is incorrect." + " \n \n" + "Please try again!";
-                            AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                            builder.setTitle("Error");
-                            builder.setMessage(message);
-                            builder.setPositiveButton("Cancel", null);
-                            builder.setNegativeButton("Retry", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int id) {
-                                    show(context);
-                                }
-                            });
-                            builder.create().show();
-                            /////
-                        }
-                    }
-                })
-            .setPositiveButton("Cancel",
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        dialog.dismiss();
-                    }
-                }
-            );
-
-        // create alert dialog
-        AlertDialog alertDialog = alertDialogBuilder.create();
-
-        // show it
-        alertDialog.show();
-    } */
 }
