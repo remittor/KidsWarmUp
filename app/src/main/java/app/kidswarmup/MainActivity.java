@@ -18,6 +18,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.core.view.InputDeviceCompat;
+
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.DataOutputStream;
@@ -30,7 +32,7 @@ import static android.view.MotionEvent.ACTION_BUTTON_PRESS;
 import static android.view.MotionEvent.BUTTON_PRIMARY;
 import static android.view.MotionEvent.BUTTON_SECONDARY;
 
-public class MainActivity extends Activity implements View.OnGenericMotionListener, View.OnClickListener, View.OnKeyListener {
+public class MainActivity extends Activity implements View.OnGenericMotionListener, View.OnClickListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
     private Context appContext;
@@ -56,7 +58,7 @@ public class MainActivity extends Activity implements View.OnGenericMotionListen
         setContentView(R.layout.activity_main);
         mainFrame = findViewById(R.id.mainFrame);
         mainFrame.setOnGenericMotionListener(this);
-        mainFrame.setOnKeyListener(this);
+        //mainFrame.setOnKeyListener(this);
         //mainFrame.getContext();
         stepsCurrentTextView = findViewById(R.id.steps_left);
         stepsTargetEditText = findViewById(R.id.steps_setup);
@@ -121,34 +123,31 @@ public class MainActivity extends Activity implements View.OnGenericMotionListen
     }
 
     @Override
-    public boolean onKey(View view, int keyCode, KeyEvent event) {
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
         int source = event.getSource();
-        Log.i(TAG, "key = " + keyCode);
-        if (source != SOURCE_KEYBOARD)
-            return false;
-        if (event.getAction() != KeyEvent.ACTION_UP)
-            return false;
-        if ((prevButton == 0 || prevButton == KeyEvent.KEYCODE_X) && keyCode == KeyEvent.KEYCODE_Z) {
-            countStep();
-            prevButton = keyCode;
-            return false;
+        if (source == SOURCE_KEYBOARD) {
+            if ((prevButton == 0 || prevButton == KeyEvent.KEYCODE_X) && keyCode == KeyEvent.KEYCODE_Z) {
+                countStep();
+                prevButton = keyCode;
+                return false;
+            }
+            if ((prevButton == 0 || prevButton == KeyEvent.KEYCODE_Z) && keyCode == KeyEvent.KEYCODE_X) {
+                countStep();
+                prevButton = keyCode;
+                return false;
+            }
         }
-        if ((prevButton == 0 || prevButton == KeyEvent.KEYCODE_Z) && keyCode == KeyEvent.KEYCODE_X) {
-            countStep();
-            prevButton = keyCode;
-            return false;
-        }
-        return false;
+        return super.onKeyUp(keyCode, event);
     }
 
     @Override
-    public boolean onGenericMotion(View view, MotionEvent motionEvent) {
-        int source = motionEvent.getSource();
+    public boolean onGenericMotion(View view, MotionEvent event) {
+        int source = event.getSource();
         if (source != SOURCE_MOUSE && source != SOURCE_MOUSE_RELATIVE)
             return false;
-        if (motionEvent.getActionMasked() != ACTION_BUTTON_PRESS)
+        if (event.getActionMasked() != ACTION_BUTTON_PRESS)
             return false;
-        int buttonState = motionEvent.getButtonState();
+        int buttonState = event.getButtonState();
         if ((prevButton == 0 || prevButton == BUTTON_SECONDARY) && buttonState == BUTTON_PRIMARY) {
             countStep();
             prevButton = buttonState;
