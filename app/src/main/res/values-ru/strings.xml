@@ -11,4 +11,5 @@
     <string name="set_lock_features_failed">Вызов setLockTaskFeaturee() не удался - является ли приложение Device Owner?</string>
     <string name="app_is_not_device_admin">Приложение не имеет прав Device Admin!</string>
     <string name="app_is_device_admin">Приложение имеет права Device Admin!</string>
+    <string name="app_autorun">App AutoRun</string>
 </resources>
