@@ -1,6 +1,11 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <Preference
+        app:iconSpaceReserved="false"
+        app:widgetLayout="@layout/pref_app_close_button"
+        />
+
     <PreferenceCategory app:title="@string/settings_header">
 
         <SwitchPreferenceCompat
@@ -24,6 +29,12 @@
             app:defaultValue="10"
             app:key="step_target"
             app:title="@string/step_target_title"
+            app:useSimpleSummaryProvider="true" />
+
+        <EditTextPreference
+            app:defaultValue="1234"
+            app:key="menu_password"
+            app:title="@string/menu_password"
             app:useSimpleSummaryProvider="true" />
 
         <ListPreference

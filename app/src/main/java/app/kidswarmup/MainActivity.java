@@ -5,6 +5,7 @@ import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -19,6 +20,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.core.view.InputDeviceCompat;
+import androidx.preference.PreferenceManager;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -99,6 +101,22 @@ public class MainActivity extends Activity implements View.OnGenericMotionListen
         outState.putBoolean("configured", configured);
         outState.putInt("prevButton", prevButton);
         outState.putBoolean("firstStepHalfDone", firstStepHalfDone);
+    }
+
+    public void loadPrefs(){
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        //_lat = Double.parseDouble(prefs.getString("lat", ""));
+        //setupUI();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        String changes = getIntent().getStringExtra("prefChanged");
+        if(changes != null)
+            Log.d(TAG, changes);
+        else
+            Log.d(TAG, "No changes!!!!");
     }
 
     private boolean checkRootAvailability() {
