@@ -78,7 +78,7 @@ public class SettingsActivity extends AppCompatActivity implements
         if (id == R.id.devadm_install_button)
             onDevAdmInstallButtonClick();
         if (id == R.id.devadm_delete_button)
-            onDevAdmDeleteButtonClick();
+            onDevAdmDeleteButtonClick(false);
     }
 
     private void onAppCloseButtonClick() {
@@ -89,40 +89,85 @@ public class SettingsActivity extends AppCompatActivity implements
     private void onDevAdmInstallButtonClick() {
         String pkgName = getApplicationContext().getPackageName();   // app.kidswarmup
         String appName = getEnglishString(R.string.app_name);        // KidsWarmUp
-        String[] cmd = new String[]{
-            "mount -o rw,remount /data",
-            "cat > /data/system/device_owner.xml <<\"DEVICE_OWNER1\"",
-            "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\" ?>",
-            "<root>",
-            "    <device-owner",
-            "        package=\"" + pkgName + "\"",
-            "        name=\""+ appName + "\"",
-            "    />",
-            "</root>",
-            "DEVICE_OWNER1",
-            "chown system:system /data/system/device_owner.xml",
-            "cat > /data/system/device_policy_2.xml <<\"DEVICE_POL2\"",
-            "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\" ?>",
-            "<root>",
-            "    <device-owner",
-            "        package=\"" + pkgName + "\"",
-            "        name=\"" + appName + "\"",
-            "        component=\"" + pkgName + "/" + pkgName + ".DeviceAdminReceiver\"",
-            "        userRestrictionsMigrated=\"true\"",
-            "    />",
-            "</root>",
-            "DEVICE_POL2",
-            "chown system:system /data/system/device_policy_2.xml"
-        };
+        int x = 0;
+        String fn = "";
         try {
+            String[] cmd = new String[] { "mount -o rw,remount /data" };
             doSuCmd(cmd);
-            Toast.makeText(this, "Device-Owner policies installed!", Toast.LENGTH_LONG).show();
+            x =+ 1;
         } catch (Exception e) {
-            Log.e(TAG, "Can't copy files to /data/system/* !!! Is root available?", e);
+            Log.e(TAG, "Failed on remount /data !!! Is root available?", e);
         }
+        try {
+            fn = "/data/system/device_owner.xml";
+            String[] cmd = new String[]{
+                    "cat > " + fn + " <<\"DEVICE_OWNER1\"",
+                    "<?xml version='1.0' encoding='utf-8' standalone='yes' ?>",
+                    "<root>",
+                    "    <device-owner",
+                    "        package=\"" + pkgName + "\"",
+                    "        name=\"" + appName + "\"",
+                    "    />",
+                    "</root>",
+                    "DEVICE_OWNER1",
+                    "chown system:system " + fn
+            };
+            doSuCmd(cmd);
+            x =+ 1;
+        } catch (Exception e) {
+            Log.e(TAG, "Can't create file " + fn + " !!! Is root available?", e);
+        }
+        try {
+            fn = "/data/system/device_owner_2.xml";
+            String[] cmd = new String[]{
+                    "cat > " + fn + " <<\"DEVICE_OWNER2\"",
+                    "<?xml version='1.0' encoding='utf-8' standalone='yes' ?>",
+                    "<root>",
+                    "    <device-owner",
+                    "        package=\"" + pkgName + "\"",
+                    "        name=\"" + appName + "\"",
+                    "        component=\"" + pkgName + "/" + pkgName + ".DeviceAdminReceiver\"",
+                    "        userRestrictionsMigrated=\"true\"",
+                    "        canAccessDeviceIds=\"true\"",
+                    "    />",
+                    "    <device-owner-context userId=\"0\" />",
+                    "</root>",
+                    "DEVICE_OWNER2",
+                    "chown system:system " + fn
+            };
+            doSuCmd(cmd);
+            x =+ 1;
+        } catch (Exception e) {
+            Log.e(TAG, "Can't create file " + fn + " !!! Is root available?", e);
+        }
+        try {
+            fn = "/data/system/device_policy_2.xml";
+            String[] cmd = new String[]{
+                    "cat > " + fn + " <<\"DEVICE_POL2\"",
+                    "<?xml version='1.0' encoding='utf-8' standalone='yes' ?>",
+                    "<root>",
+                    "    <device-owner",
+                    "        package=\"" + pkgName + "\"",
+                    "        name=\"" + appName + "\"",
+                    "        component=\"" + pkgName + "/" + pkgName + ".DeviceAdminReceiver\"",
+                    "        userRestrictionsMigrated=\"true\"",
+                    "    />",
+                    "</root>",
+                    "DEVICE_POL2",
+                    "chown system:system " + fn
+            };
+            doSuCmd(cmd);
+            x =+ 1;
+        } catch (Exception e) {
+            Log.e(TAG, "Can't create file " + fn + " !!! Is root available?", e);
+        }
+        if (x >= 4)
+            Toast.makeText(this, "Device-Owner policies installed!", Toast.LENGTH_LONG).show();
+        else
+            Toast.makeText(this, "Device-Owner policies NOT installed!", Toast.LENGTH_LONG).show();
     }
 
-    private void onDevAdmDeleteButtonClick() {
+    private void onDevAdmDeleteButtonClick(boolean silent) {
         String[] cmd = new String[]{
             "mount -o rw,remount /data",
             "rm -f /data/system/device_owner.xml",
@@ -135,7 +180,8 @@ public class SettingsActivity extends AppCompatActivity implements
         } catch (Exception e) {
             Log.e(TAG, "Can't remove files from /data/system/* !!! Is root available?", e);
         }
-        Toast.makeText(this, "Please, REBOOT device!", Toast.LENGTH_LONG).show();
+        if (!silent)
+            Toast.makeText(this, "Please, REBOOT device!", Toast.LENGTH_LONG).show();
     }
 
     public void doSuCmd(String[] commands) throws Exception {
