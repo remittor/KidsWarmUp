@@ -37,9 +37,15 @@
     <string name="devadm_setup_title">Device Admin Settings</string>
     <string name="devadm_setup_summary"></string>
     <string name="devadm_title"></string>
-    <string name="devadm_install_title">Install Device Admin</string>
-    <string name="devadm_delete_title">Delete Device Admin</string>
     <string name="title_activity_settings_device_admin">SettingsDeviceAdmin</string>
+    <string name="devadm_install_title">Install Device Admin</string>
+    <string name="devadm_install_button">Install Device Admin</string>
+    <string name="devadm_policies_title">Device Policies (optional)</string>
+    <string name="devadm_policies_button">Replace file device_policies.xml</string>
+    <string name="devadm_activate_title">Activate Device Admin</string>
+    <string name="devadm_activate_button">Activate Device Admin</string>
+    <string name="devadm_delete_title">Delete Device Admin</string>
+    <string name="devadm_delete_button">Delete Device Admin</string>
 
     <!-- Preference Titles -->
     <string name="messages_header">Messages</string>
