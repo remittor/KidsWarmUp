@@ -6,12 +6,49 @@ android {
     compileSdkVersion 30
     buildToolsVersion "30.0.2"
 
+    def ver_major = 1
+    def ver_minor = 0
+    def ver_patch = 0
+
+    def versionPropsFile = file('version.properties')
+    if (versionPropsFile.canRead()) {
+        def Properties versionProps = new Properties()
+        versionProps.load(new FileInputStream(versionPropsFile))
+        List<String> runTasks = gradle.startParameter.getTaskNames();
+        def value = 1  // always increment
+        for (String item : runTasks)
+            if ( item.contains("assembleRelease")) {
+                value = 1;
+            }
+        ver_major = versionProps['VERSION_MAJOR'].toInteger()
+        ver_minor = versionProps['VERSION_MINOR'].toInteger()
+        ver_patch = versionProps['VERSION_PATCH'].toInteger() + value
+        //def ver_build = versionProps['VERSION_BUILD'].toInteger() + 1
+
+        versionProps['VERSION_PATCH'] = ver_patch.toString()
+        versionProps.store(versionPropsFile.newWriter(), null)
+
+        applicationVariants.all { variant ->
+            variant.outputs.all { output ->
+                if (output.outputFile != null) {
+                    def apk_name = "KidsWarmUp-${ver_major}-${ver_minor}-${ver_patch}"
+                    if (output.outputFile.name == "app-debug.apk")
+                        apk_name += "-debug"
+                    outputFileName = apk_name + ".apk"
+                }
+            }
+        }
+    }
+    else {
+        throw new GradleException("Could not read version.properties!")
+    }
+
     defaultConfig {
         applicationId "app.kidswarmup"
         minSdkVersion 25
         targetSdkVersion 30
-        versionCode 1
-        versionName "1.0"
+        versionCode ver_major * 1000000 + ver_minor * 10000 + ver_patch
+        versionName ver_major + "." + ver_minor + "." + ver_patch
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
