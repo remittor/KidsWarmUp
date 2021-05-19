@@ -6,6 +6,9 @@ android {
     compileSdkVersion 30
     buildToolsVersion "30.0.2"
 
+    def app_id = "app.kidswarmup"
+    def ver_sdk_target = 30  // 10
+    def ver_sdk_min = 25  // 7.1.2
     def ver_major = 1
     def ver_minor = 0
     def ver_patch = 0
@@ -14,20 +17,22 @@ android {
     if (versionPropsFile.canRead()) {
         def Properties versionProps = new Properties()
         versionProps.load(new FileInputStream(versionPropsFile))
+        def build_type = 0
         List<String> runTasks = gradle.startParameter.getTaskNames();
-        def value = 1  // always increment
-        for (String item : runTasks)
-            if ( item.contains("assembleRelease")) {
-                value = 1;
-            }
+        for (String item : runTasks) {
+            if (item.contains("assembleDebug"))
+                build_type = 1
+            if (item.contains("assembleRelease"))
+                build_type = 2
+        }
         ver_major = versionProps['VERSION_MAJOR'].toInteger()
         ver_minor = versionProps['VERSION_MINOR'].toInteger()
-        ver_patch = versionProps['VERSION_PATCH'].toInteger() + value
-        //def ver_build = versionProps['VERSION_BUILD'].toInteger() + 1
-
-        versionProps['VERSION_PATCH'] = ver_patch.toString()
-        versionProps.store(versionPropsFile.newWriter(), null)
-
+        ver_patch = versionProps['VERSION_PATCH'].toInteger()
+        if (build_type > 0) {
+            ver_patch += 1
+            versionProps['VERSION_PATCH'] = ver_patch.toString()
+            versionProps.store(versionPropsFile.newWriter(), null)
+        }
         applicationVariants.all { variant ->
             variant.outputs.all { output ->
                 if (output.outputFile != null) {
@@ -44,9 +49,9 @@ android {
     }
 
     defaultConfig {
-        applicationId "app.kidswarmup"
-        minSdkVersion 25
-        targetSdkVersion 30
+        applicationId app_id
+        minSdkVersion ver_sdk_min
+        targetSdkVersion ver_sdk_target
         versionCode ver_major * 1000000 + ver_minor * 10000 + ver_patch
         versionName ver_major + "." + ver_minor + "." + ver_patch
 
