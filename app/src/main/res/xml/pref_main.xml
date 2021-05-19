@@ -31,6 +31,9 @@
             app:title="@string/step_target_title"
             app:useSimpleSummaryProvider="true" />
 
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="@string/menu_password">
         <EditTextPreference
             app:defaultValue="1234"
             app:key="menu_password"
