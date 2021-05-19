@@ -22,6 +22,12 @@
             />
     </PreferenceCategory>
 
+    <PreferenceCategory app:title="@string/devadm_reboot_title">
+        <Preference
+            app:iconSpaceReserved="false"
+            app:widgetLayout="@layout/pref_devadm_reboot_button" />
+    </PreferenceCategory>
+
     <PreferenceCategory app:title="@string/devadm_delete_title">
         <Preference
             app:iconSpaceReserved="false"

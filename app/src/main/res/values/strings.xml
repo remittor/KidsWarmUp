@@ -44,6 +44,8 @@
     <string name="devadm_install_button">Install Device Owner</string>
     <string name="devadm_policies_title">Device Policies (optional)</string>
     <string name="devadm_policies_button">Replace file device_policies.xml</string>
+    <string name="devadm_reboot_title">Reboot device</string>
+    <string name="devadm_reboot_button">Reboot device</string>
     <string name="devadm_delete_title">Delete Device Admin/Owner</string>
     <string name="devadm_delete_button">Delete Device Admin/Owner</string>
 

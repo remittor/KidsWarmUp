@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.os.PowerManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -91,6 +92,8 @@ public class SettingsActivity extends AppCompatActivity implements
             onDevAdmInstallButtonClick();
         if (id == R.id.devadm_policies_button)
             onDevAdmUpdatePoliciesButtonClick();
+        if (id == R.id.devadm_reboot_button)
+            onDevAdmRebootButtonClick();
         if (id == R.id.devadm_delete_button)
             onDevAdmDeleteButtonClick();
     }
@@ -271,6 +274,22 @@ public class SettingsActivity extends AppCompatActivity implements
             Toast.makeText(this, "All XML files deleted!\n" + "Please, REBOOT device!", Toast.LENGTH_LONG).show();
         else
             Toast.makeText(this, "ERROR: XML files NOT deleted!", Toast.LENGTH_LONG).show();
+    }
+
+    private void onDevAdmRebootButtonClick() {
+        DevicePolicyManager dpm = (DevicePolicyManager) getSystemService(DEVICE_POLICY_SERVICE);
+        if (dpm.isAdminActive(devAdmName) && dpm.isDeviceOwnerApp(pkgName)) {
+            dpm.reboot(devAdmName);
+            return;
+        }
+        try {
+            Process proc = Runtime.getRuntime().exec(new String[] { "su", "-c", "reboot" });
+            proc.waitFor();
+        } catch (Exception ex) {
+            Log.i(TAG, "Could not reboot", ex);
+            Toast.makeText(this, "ERROR: Could not reboot", Toast.LENGTH_LONG).show();
+        }
+        Toast.makeText(this, "Device rebooting...", Toast.LENGTH_LONG).show();
     }
 
     public void doSuCmd(String[] commands) throws Exception {
