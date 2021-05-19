@@ -33,7 +33,6 @@ public class SettingsActivity extends AppCompatActivity implements
     private String appName;            // KidsWarmUp
     private String pkgName;            // app.kidswarmup
     private ComponentName devAdmName;  // app.kidswarmup/app.kidswarmup.DeviceAdminReceiver
-    private DevicePolicyManager dpm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,7 +41,6 @@ public class SettingsActivity extends AppCompatActivity implements
         appName = getEnglishString(R.string.app_name);
         pkgName = getApplicationContext().getPackageName();
         devAdmName = DeviceAdminReceiver.getComponentName(this);
-        dpm = (DevicePolicyManager) getSystemService(DEVICE_POLICY_SERVICE);
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.settings, new SettingsFragment())
@@ -252,38 +250,16 @@ public class SettingsActivity extends AppCompatActivity implements
         }
     }
 
-    private boolean onDevAdmActivateButtonClick() {
-        Log.i(TAG, "DevADM: isDeviceOwnerApp = " + dpm.isDeviceOwnerApp(pkgName) + ", isAdminActive = " + dpm.isAdminActive(devAdmName));
-        if (dpm.isDeviceOwnerApp(pkgName) && dpm.isAdminActive(devAdmName)) {
-            Log.i(TAG, "Calling setLockTaskPackages()");
-            String[] packages = new String[]{pkgName};
-            try {
-                dpm.setLockTaskPackages(devAdmName, packages);
-            } catch (SecurityException e) {
-                Log.e(TAG, "setLockTaskPackages() failed", e);
-                Toast.makeText(this, R.string.set_lock_packages_failed, Toast.LENGTH_LONG).show();
-                return false;
-            }
-        }
-        Log.i(TAG, "DevAdm: isDeviceOwnerApp = " + dpm.isDeviceOwnerApp(pkgName) + ", isAdminActive = " + dpm.isAdminActive(devAdmName));
-
-        DevicePolicyManager manager = (DevicePolicyManager) getSystemService(DEVICE_POLICY_SERVICE);
-        if (!manager.isAdminActive(devAdmName)) {
+    private void onDevAdmActivateButtonClick() {
+        DevicePolicyManager dpm = (DevicePolicyManager) getSystemService(DEVICE_POLICY_SERVICE);
+        if (!dpm.isAdminActive(devAdmName)) {
             Log.i(TAG, "Device admin is not active");
             Intent intent = new Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN);
             intent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, devAdmName);
             startActivityForResult(intent, 0);
-            Toast.makeText(this, "Device admin is not active", Toast.LENGTH_LONG).show();
-            return false;
+            return;
         }
-        if (!manager.isDeviceOwnerApp(getPackageName())) {
-            Toast.makeText(this, R.string.app_is_not_device_admin, Toast.LENGTH_LONG).show();
-            Log.i(TAG, "App is NOT device owner");
-            return false;
-        }
-        Toast.makeText(this, R.string.app_is_device_admin, Toast.LENGTH_LONG).show();
-        Log.i(TAG, "App is device owner");
-        return true;
+        Toast.makeText(this, "Device Admin already activated", Toast.LENGTH_LONG).show();
     }
 
     private void onDevAdmDeleteButtonClick() {
@@ -292,7 +268,7 @@ public class SettingsActivity extends AppCompatActivity implements
         String flist = "dev_owner + dev_owner_2 + dev_pol_2 + dev_pol";
         boolean x = devAdmDeleteFiles(flist, false);
         if (x)
-            Toast.makeText(this, "All XML files deleted! Please, REBOOT device!", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "All XML files deleted!\n" + "Please, REBOOT device!", Toast.LENGTH_LONG).show();
         else
             Toast.makeText(this, "ERROR: XML files NOT deleted!", Toast.LENGTH_LONG).show();
     }
