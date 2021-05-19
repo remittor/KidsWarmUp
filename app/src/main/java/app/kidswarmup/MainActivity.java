@@ -76,6 +76,7 @@ public class MainActivity extends Activity implements View.OnGenericMotionListen
         buttonMenu = findViewById(R.id.menu_btn);
         buttonMenu.setOnClickListener(this);
         appContext = getApplicationContext();
+        boolean m_app_close = false;
         rootPresent = checkRootAvailability();
         dpm = (DevicePolicyManager) getSystemService(DEVICE_POLICY_SERVICE);
 
@@ -117,6 +118,24 @@ public class MainActivity extends Activity implements View.OnGenericMotionListen
             Log.d(TAG, changes);
         else
             Log.d(TAG, "No changes!!!!");
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == 1) {
+            if (resultCode == Activity.RESULT_OK){
+                String app_close = data.getStringExtra("app_close");
+                //Toast.makeText(this, "RESULT_OK: app_close = " + app_close, Toast.LENGTH_LONG).show();
+                if (app_close != null && app_close.equals("yes")) {
+                    Log.i(TAG, "disableKioskMode()");
+                    stopLockTask();
+                    finish();
+                }
+            }
+            if (resultCode == Activity.RESULT_CANCELED) {
+                //Toast.makeText(this, "RESULT_CANCELED", Toast.LENGTH_LONG).show();
+            }
+        }
     }
 
     private boolean checkRootAvailability() {
@@ -207,8 +226,10 @@ public class MainActivity extends Activity implements View.OnGenericMotionListen
 
     private void onMenuButtonClick() {
         //PasswordDialog.show(mainFrame.getContext(), "123");
-        Intent i = new Intent(MainActivity.this, SettingsActivity.class);
-        startActivity(i);
+        //Intent i = new Intent(MainActivity.this, SettingsActivity.class);
+        //startActivity(i);
+        Intent i = new Intent(this, SettingsActivity.class);
+        startActivityForResult(i, 1);
     }
 
     private void onStopButtonClick() {

@@ -9,6 +9,7 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -16,6 +17,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NavUtils;
 import androidx.fragment.app.Fragment;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
@@ -82,6 +84,16 @@ public class SettingsActivity extends AppCompatActivity implements
         }
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            NavUtils.navigateUpFromSameTask(this);
+            //super.onBackPressed();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
     public void onClick(View view) {
         int id = view.getId();
         if (id == R.id.app_close_button)
@@ -99,8 +111,10 @@ public class SettingsActivity extends AppCompatActivity implements
     }
 
     private void onAppCloseButtonClick() {
-        Toast.makeText(this, "app_close_button", Toast.LENGTH_LONG).show();
-        //disableKioskMode();
+        Intent returnIntent = new Intent();
+        returnIntent.putExtra("app_close", "yes");
+        setResult(Activity.RESULT_OK, returnIntent);
+        finish();
     }
 
     private boolean remountDataPart(boolean writeable, boolean silent) {
