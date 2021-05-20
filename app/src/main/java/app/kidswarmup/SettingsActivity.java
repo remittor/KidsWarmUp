@@ -5,13 +5,16 @@ import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.PowerManager;
+import android.text.InputType;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -21,6 +24,7 @@ import androidx.core.app.NavUtils;
 import androidx.fragment.app.Fragment;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.PreferenceManager;
 
 import java.io.DataOutputStream;
 import java.util.ArrayList;
@@ -30,12 +34,14 @@ import app.kidswarmup.MainActivity;
 
 public class SettingsActivity extends AppCompatActivity implements
     PreferenceFragmentCompat.OnPreferenceStartFragmentCallback,
+    SharedPreferences.OnSharedPreferenceChangeListener,
     View.OnClickListener {
 
     private static final String TAG = SettingsActivity.class.getSimpleName();
     private String appName;            // KidsWarmUp
     private String pkgName;            // app.kidswarmup
     private ComponentName devAdmName;  // app.kidswarmup/app.kidswarmup.DeviceAdminReceiver
+    private boolean prefChanged = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +58,7 @@ public class SettingsActivity extends AppCompatActivity implements
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
+        PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this);
     }
 
     @Override
@@ -74,6 +81,21 @@ public class SettingsActivity extends AppCompatActivity implements
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             setPreferencesFromResource(R.xml.pref_main, rootKey);
+            int t_num = InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL;
+            setEditTextType("timeout", t_num);
+            setEditTextType("timeout_first", t_num);
+            setEditTextType("step_target", t_num);
+            setEditTextType("menu_password", t_num);
+        }
+
+        public void setEditTextType(String key, int type) {
+            androidx.preference.EditTextPreference edit = getPreferenceManager().findPreference(key);
+            edit.setOnBindEditTextListener(new androidx.preference.EditTextPreference.OnBindEditTextListener() {
+                @Override
+                public void onBindEditText(@NonNull EditText editText) {
+                    editText.setInputType(type);
+                }
+            });
         }
     }
 
@@ -85,8 +107,22 @@ public class SettingsActivity extends AppCompatActivity implements
     }
 
     @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        Log.i(TAG, "change key = " + key);
+        if (key.length() > 2)
+            prefChanged = true;
+    }
+
+    @Override
+    public void onBackPressed() {
+        setSettingsResult(Activity.RESULT_CANCELED, false);
+        super.onBackPressed();
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
+            setSettingsResult(Activity.RESULT_OK, false);
             NavUtils.navigateUpFromSameTask(this);
             //super.onBackPressed();
             return true;
@@ -110,11 +146,22 @@ public class SettingsActivity extends AppCompatActivity implements
             onDevAdmDeleteButtonClick();
     }
 
-    private void onAppCloseButtonClick() {
+    private void setSettingsResult(int resultCode, boolean app_close) {
         Intent returnIntent = new Intent();
-        returnIntent.putExtra("app_close", "yes");
-        setResult(Activity.RESULT_OK, returnIntent);
+        returnIntent.putExtra("pref_changed", prefChanged);
+        returnIntent.putExtra("app_close", app_close);
+        setResult(resultCode, returnIntent);
+    }
+
+    private void onAppCloseButtonClick() {
+        setSettingsResult(Activity.RESULT_OK, true);
         finish();
+    }
+
+    @Override
+    protected void onDestroy() {
+        Log.d(TAG, "DESTROY settings activity");
+        super.onDestroy();
     }
 
     private boolean remountDataPart(boolean writeable, boolean silent) {

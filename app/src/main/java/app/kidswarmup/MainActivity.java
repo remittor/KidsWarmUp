@@ -21,11 +21,21 @@ import android.widget.Toast;
 
 import androidx.core.view.InputDeviceCompat;
 import androidx.preference.PreferenceManager;
+import androidx.work.ExistingPeriodicWorkPolicy;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkInfo;
+import androidx.work.WorkManager;
+import androidx.work.WorkRequest;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.common.util.concurrent.ListenableFuture;
 
 import java.io.DataOutputStream;
 import java.lang.reflect.Method;
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 import static android.app.admin.DevicePolicyManager.LOCK_TASK_FEATURE_BLOCK_ACTIVITY_START_IN_TASK;
 import static android.view.InputDevice.SOURCE_KEYBOARD;
@@ -60,6 +70,7 @@ public class MainActivity extends Activity implements View.OnGenericMotionListen
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        loadPrefs();
         setContentView(R.layout.activity_main);
         mainFrame = findViewById(R.id.mainFrame);
         mainFrame.setOnGenericMotionListener(this);
@@ -76,22 +87,31 @@ public class MainActivity extends Activity implements View.OnGenericMotionListen
         buttonMenu = findViewById(R.id.menu_btn);
         buttonMenu.setOnClickListener(this);
         appContext = getApplicationContext();
-        boolean m_app_close = false;
         rootPresent = checkRootAvailability();
         dpm = (DevicePolicyManager) getSystemService(DEVICE_POLICY_SERVICE);
 
         if (savedInstanceState != null) {
-            stepsCurrent = savedInstanceState.getInt("stepsCurrent");
-            stepsTarget = savedInstanceState.getInt("stepsTarget");
-            configured = savedInstanceState.getBoolean("configured");
-            prevButton = savedInstanceState.getInt("prevButton");
-            firstStepHalfDone = savedInstanceState.getBoolean("firstStepHalfDone");
+            restoreInstanceState(savedInstanceState);
             if (configured) {
                 setControlsVisibility(false);
                 enableKioskMode();
                 setupUI();
             }
         }
+    }
+
+    private void restoreInstanceState(Bundle savedInstanceState) {
+        stepsCurrent = savedInstanceState.getInt("stepsCurrent");
+        stepsTarget = savedInstanceState.getInt("stepsTarget");
+        configured = savedInstanceState.getBoolean("configured");
+        prevButton = savedInstanceState.getInt("prevButton");
+        firstStepHalfDone = savedInstanceState.getBoolean("firstStepHalfDone");
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        restoreInstanceState(savedInstanceState);
     }
 
     @Override
@@ -106,27 +126,42 @@ public class MainActivity extends Activity implements View.OnGenericMotionListen
 
     public void loadPrefs(){
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        //_lat = Double.parseDouble(prefs.getString("lat", ""));
+        //workRequestId = UUID.fromString(prefs.getString("workRequestId", "0-0-0-0-0"));
         //setupUI();
+    }
+
+    public void savePrefs(){
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor ed = prefs.edit();
+        //ed.putString("workRequestId", workRequestId.toString());
+        ed.commit();
+        Toast.makeText(this, "savePrefs", Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    protected void onDestroy() {
+        Log.i(TAG, "MainActivity onDestroy");
+        super.onDestroy();
+        savePrefs();
     }
 
     @Override
     protected void onResume() {
+        Log.i(TAG, "MainActivity onResume");
         super.onResume();
-        String changes = getIntent().getStringExtra("prefChanged");
-        if(changes != null)
-            Log.d(TAG, changes);
-        else
-            Log.d(TAG, "No changes!!!!");
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == 1) {
+            boolean pref_changed = data.getBooleanExtra("pref_changed", false);
+            Log.i(TAG, "pref_changed = " + pref_changed);
+            if (pref_changed)
+                initMainWorker(0, 0);
             if (resultCode == Activity.RESULT_OK){
-                String app_close = data.getStringExtra("app_close");
+                boolean app_close = data.getBooleanExtra("app_close", false);
                 //Toast.makeText(this, "RESULT_OK: app_close = " + app_close, Toast.LENGTH_LONG).show();
-                if (app_close != null && app_close.equals("yes")) {
+                if (app_close) {
                     Log.i(TAG, "disableKioskMode()");
                     stopLockTask();
                     finish();
@@ -135,6 +170,62 @@ public class MainActivity extends Activity implements View.OnGenericMotionListen
             if (resultCode == Activity.RESULT_CANCELED) {
                 //Toast.makeText(this, "RESULT_CANCELED", Toast.LENGTH_LONG).show();
             }
+        }
+    }
+
+    private boolean stopMainWorker() {
+        try {
+            WorkManager wrkmgr = WorkManager.getInstance(getApplicationContext());
+            wrkmgr.cancelUniqueWork(MainWorker.workName);
+            Log.i(TAG, "MainWorker canceled!");
+        } catch (Exception e) {
+            return false;
+        }
+        return true;
+    }
+
+    private boolean initMainWorker(long repeatInterval, long flexInterval) {
+        TimeUnit tu = TimeUnit.MINUTES;
+        if (repeatInterval < 0)
+            return stopMainWorker();
+        boolean app_autorun = false;
+        if (repeatInterval == 0) {
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+            app_autorun = prefs.getBoolean("app_autorun", false);
+            try {
+                repeatInterval = Integer.parseInt(prefs.getString("timeout", "40"));
+                flexInterval = Integer.parseInt(prefs.getString("timeout_first", "5"));
+            } catch (Exception e) {
+                app_autorun = false;
+            }
+            if (!app_autorun || repeatInterval <= 0)
+                return stopMainWorker();
+        }
+        PeriodicWorkRequest request = new PeriodicWorkRequest.Builder(MainWorker.class, repeatInterval, tu, flexInterval, tu).build();
+        WorkManager wrkmgr = WorkManager.getInstance(getApplicationContext());
+        wrkmgr.enqueueUniquePeriodicWork(MainWorker.workName, ExistingPeriodicWorkPolicy.REPLACE, request);
+        Log.i(TAG, "MainWorker started: timeout = " + repeatInterval + ", flex = " + flexInterval);
+        return true;
+    }
+
+    private void getMainWorkerInfo() {
+        WorkManager wrkmgr = WorkManager.getInstance(getApplicationContext());
+        ListenableFuture<List<WorkInfo>> wilst = wrkmgr.getWorkInfosForUniqueWork(MainWorker.workName);
+        try {
+            boolean running = false;
+            List<WorkInfo> workInfoList = wilst.get();
+            for (WorkInfo workInfo : workInfoList) {
+                WorkInfo.State state = workInfo.getState();
+                running = (state == WorkInfo.State.RUNNING) | (state == WorkInfo.State.ENQUEUED);
+                Log.i(TAG, "worker id  = " + workInfo.getId());
+            }
+            //return running;
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+            //return false;
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            //return false;
         }
     }
 
