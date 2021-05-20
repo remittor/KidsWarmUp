@@ -17,9 +17,12 @@ android {
     if (versionPropsFile.canRead()) {
         def Properties versionProps = new Properties()
         versionProps.load(new FileInputStream(versionPropsFile))
+        def task_clean = 0
         def build_type = 0
         List<String> runTasks = gradle.startParameter.getTaskNames();
         for (String item : runTasks) {
+            if (item.contains("clean"))
+                task_clean = 1
             if (item.contains("assembleDebug"))
                 build_type = 1
             if (item.contains("assembleRelease"))
@@ -28,7 +31,7 @@ android {
         ver_major = versionProps['VERSION_MAJOR'].toInteger()
         ver_minor = versionProps['VERSION_MINOR'].toInteger()
         ver_patch = versionProps['VERSION_PATCH'].toInteger()
-        if (build_type > 0) {
+        if (task_clean > 0 && build_type > 0) {
             ver_patch += 1
             versionProps['VERSION_PATCH'] = ver_patch.toString()
             versionProps.store(versionPropsFile.newWriter(), null)
