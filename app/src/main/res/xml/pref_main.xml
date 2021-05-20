@@ -50,4 +50,12 @@
             />
     </PreferenceCategory>
 
+    <PreferenceCategory app:title="@string/app_version">
+        <EditTextPreference
+            app:key="app_version"
+            app:enabled="false"
+            app:title="@string/app_version"
+            app:useSimpleSummaryProvider="true" />
+    </PreferenceCategory>
+
 </PreferenceScreen>

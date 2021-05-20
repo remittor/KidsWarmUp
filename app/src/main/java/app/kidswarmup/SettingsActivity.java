@@ -6,6 +6,8 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.PowerManager;
@@ -42,6 +44,7 @@ public class SettingsActivity extends AppCompatActivity implements
     private String pkgName;            // app.kidswarmup
     private ComponentName devAdmName;  // app.kidswarmup/app.kidswarmup.DeviceAdminReceiver
     private boolean prefChanged = false;
+    private static String app_version;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +62,12 @@ public class SettingsActivity extends AppCompatActivity implements
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
         PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this);
+        try {
+            PackageInfo pInfo = getApplicationContext().getPackageManager().getPackageInfo(pkgName, 0);
+            app_version = pInfo.versionName;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -86,6 +95,9 @@ public class SettingsActivity extends AppCompatActivity implements
             setEditTextType("timeout_first", t_num);
             setEditTextType("step_target", t_num);
             setEditTextType("menu_password", t_num);
+            androidx.preference.EditTextPreference edit = getPreferenceManager().findPreference("app_version");
+            edit.setTitle(app_version);
+            //edit.setSummary("");
         }
 
         public void setEditTextType(String key, int type) {

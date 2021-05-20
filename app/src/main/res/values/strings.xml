@@ -25,6 +25,7 @@
     <string name="timeout_first_title">Current timeout (min)</string>
     <string name="step_target_title">Step target</string>
     <string name="menu_password">Password</string>
+    <string name="app_version">Version</string>
     <string name="reply_title">Default reply action</string>
 
     <!-- Sync Preferences -->
