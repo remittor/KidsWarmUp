@@ -30,6 +30,7 @@ import androidx.preference.PreferenceManager;
 
 import java.io.DataOutputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Locale;
 
 import app.kidswarmup.MainActivity;
@@ -97,7 +98,14 @@ public class SettingsActivity extends AppCompatActivity implements
             setEditTextType("menu_password", t_num);
             androidx.preference.EditTextPreference edit = getPreferenceManager().findPreference("app_version");
             edit.setTitle(app_version);
-            //edit.setSummary("");
+            edit = getPreferenceManager().findPreference("menu_password");
+            edit.setSummaryProvider(new Preference.SummaryProvider() {
+                @Override
+                public CharSequence provideSummary(Preference preference) {
+                    String psw = PreferenceManager.getDefaultSharedPreferences(getContext()).getString("menu_password", "");
+                    return psw.isEmpty() ? "" : new String(new char[psw.length()]).replace('\0', '*');
+                }
+            });
         }
 
         public void setEditTextType(String key, int type) {

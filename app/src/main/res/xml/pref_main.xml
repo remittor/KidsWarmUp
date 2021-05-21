@@ -39,7 +39,7 @@
 
     </PreferenceCategory>
 
-    <PreferenceCategory app:title="@string/menu_password">
+    <PreferenceCategory>
         <EditTextPreference
             app:defaultValue="1234"
             app:key="menu_password"
