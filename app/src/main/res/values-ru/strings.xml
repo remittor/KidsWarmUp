@@ -3,13 +3,27 @@
     <string name="app_name">KidsWarmUp</string>
     <string name="device_admin_receiver_label">KidsWarmUp</string>
     <string name="device_admin_receiver_description">Используется для блокировки пользователя в KidsWarmUp</string>
-    <string name="button_stop_label">Стоп</string>
-    <string name="button_start_label">Старт</string>
-    <string name="steps_count_hint">Желаемое количество шагов</string>
-    <string name="enable_device_admin">Включите Администратора устройства</string>
-    <string name="set_lock_packages_failed">Вызов setLockTaskPackages() не удался - является ли приложение Device Owner?</string>
-    <string name="set_lock_features_failed">Вызов setLockTaskFeaturee() не удался - является ли приложение Device Owner?</string>
-    <string name="app_is_not_device_admin">Приложение не имеет прав Device Admin!</string>
-    <string name="app_is_device_admin">Приложение имеет права Device Admin!</string>
-    <string name="app_autorun">App AutoRun</string>
+    <string name="enable_device_admin">Необходимо активировать режим \"Device Admin\"</string>
+    <string name="set_lock_packages_failed">Вызов setLockTaskPackages() не удался.</string>
+    <string name="set_lock_permitted_failed">Вызов isLockTaskPermitted() не удался.</string>
+    <string name="set_lock_features_failed">Вызов setLockTaskFeaturee() не удался.</string>
+    <string name="app_is_not_device_admin">Приложение не имеет прав \"Device Admin\"!</string>
+    <string name="app_is_device_admin">Приложение имеет права \"Device Admin\"!</string>
+    <string name="title_activity_settings">Настройки</string>
+
+    <!-- Preference Titles -->
+    <string name="app_close">Закрыть приложение</string>
+    <string name="settings_header">Настройки</string>
+    <string name="devadm_header">Device Admin</string>
+
+    <!-- Settings Preferences -->
+    <string name="app_autorun">Автоматический запуск приложения</string>
+    <string name="timeout_title">Переодичность запуска (минуты)</string>
+    <string name="timeout_init_switch">Первичный автозапуск</string>
+    <string name="timeout_init_title">Задержка перед первичным запуском (минуты)</string>
+    <string name="step_target_title">Необходимое количество шагов</string>
+    <string name="menu_password">Пароль</string>
+    <string name="not_set">не указано</string>
+    <string name="app_version">Версия приложения</string>
+
 </resources>
