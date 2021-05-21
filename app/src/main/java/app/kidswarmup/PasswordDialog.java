@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 
@@ -18,10 +19,12 @@ public class PasswordDialog {
     public static void show(Context ctx, String pwd, int requestCode) {
         AlertDialog.Builder builder = new AlertDialog.Builder(ctx);
         builder.setTitle("Enter password");
+        //InputMethodManager imm = (InputMethodManager) ctx.getSystemService(ctx.INPUT_METHOD_SERVICE);
         // Set up the input
         final EditText input = new EditText(ctx);
         // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
-        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        //input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        input.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL | InputType.TYPE_NUMBER_VARIATION_PASSWORD);
         builder.setView(input);
         // Set up the buttons
         builder.setPositiveButton("Enter", new DialogInterface.OnClickListener() {
@@ -33,6 +36,8 @@ public class PasswordDialog {
                     Activity mainActivity = getActivity(ctx);
                     Intent i = new Intent(mainActivity, SettingsActivity.class);
                     mainActivity.startActivityForResult(i, requestCode);
+                } else {
+                    Toast.makeText(ctx, R.string.incorrect_password, Toast.LENGTH_LONG).show();
                 }
             }
         });
@@ -44,6 +49,7 @@ public class PasswordDialog {
         });
 
         builder.show();
+        //imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
     }
 
     public static Activity getActivity(Context context) {

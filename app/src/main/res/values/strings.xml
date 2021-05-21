@@ -8,6 +8,7 @@
     <string name="set_lock_features_failed">setLockTaskFeatures() failed. Is app a Device Owner?</string>
     <string name="app_is_not_device_admin">App is not a Device Admin!</string>
     <string name="app_is_device_admin">App is a Device Admin</string>
+    <string name="incorrect_password">Incorrect password!</string>
     <string name="title_activity_settings">Settings Activity</string>
 
     <!-- Preference Titles -->

@@ -116,6 +116,8 @@ public class SettingsActivity extends AppCompatActivity implements
                 @Override
                 public void onBindEditText(@NonNull EditText editText) {
                     editText.setInputType(type);
+                    editText.setSelectAllOnFocus(true);
+                    editText.setSelection(0, editText.getText().toString().length());
                 }
             });
         }
