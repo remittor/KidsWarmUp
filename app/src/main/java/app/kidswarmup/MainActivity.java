@@ -91,11 +91,11 @@ public class MainActivity extends Activity implements View.OnGenericMotionListen
         rootPresent = checkRootAvailability();
         dpm = (DevicePolicyManager) getSystemService(DEVICE_POLICY_SERVICE);
 
+        enableKioskMode();
         if (savedInstanceState != null) {
             restoreInstanceState(savedInstanceState);
             if (configured) {
                 setControlsVisibility(false);
-                enableKioskMode();
                 setupUI();
             }
         }
@@ -168,8 +168,7 @@ public class MainActivity extends Activity implements View.OnGenericMotionListen
                 boolean app_close = data.getBooleanExtra("app_close", false);
                 //Toast.makeText(this, "RESULT_OK: app_close = " + app_close, Toast.LENGTH_LONG).show();
                 if (app_close) {
-                    Log.i(TAG, "disableKioskMode()");
-                    stopLockTask();
+                    disableKioskMode();
                     finish();
                 }
             }
@@ -401,40 +400,39 @@ public class MainActivity extends Activity implements View.OnGenericMotionListen
         ComponentName componentName = DeviceAdminReceiver.getComponentName(this);
         String packageName = getPackageName();
         if (dpm.isDeviceOwnerApp(packageName) && dpm.isAdminActive(componentName)) {
-            Log.i(TAG, "Calling setLockTaskPackages()");
-            String[] packages = new String[]{packageName};
+            //Log.i(TAG, "Calling setLockTaskPackages()");
             try {
-                dpm.setLockTaskPackages(componentName, packages);
+                dpm.setLockTaskPackages(componentName, new String[]{ packageName });
             } catch (SecurityException e) {
-                Log.e(TAG, "setLockTaskPackages() failed", e);
+                Log.e(TAG, "FAIL: setLockTaskPackages()", e);
                 Toast.makeText(this, R.string.set_lock_packages_failed, Toast.LENGTH_LONG).show();
             }
         } else {
             Log.i(TAG, "isDeviceOwnerApp() == " + dpm.isDeviceOwnerApp(packageName) + " isAdminActive() == " + dpm.isAdminActive(componentName));
         }
-        if (dpm.isLockTaskPermitted(packageName)) {
-            Log.i(TAG, "isLockTaskPermitted == true");
+        if (dpm.isLockTaskPermitted(packageName) == false) {
+            Log.i(TAG, "isLockTaskPermitted() returned FALSE");
+            //Toast.makeText(this, R.string.set_lock_permitted_failed, Toast.LENGTH_LONG).show();
+            //Toast.makeText(this, R.string.enable_device_admin, Toast.LENGTH_LONG).show();
+            return;
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             try {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                        dpm.setLockTaskFeatures(componentName, LOCK_TASK_FEATURE_BLOCK_ACTIVITY_START_IN_TASK);
-                    } else {
-                        dpm.setLockTaskFeatures(componentName, DevicePolicyManager.LOCK_TASK_FEATURE_NONE);
-                    }
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    dpm.setLockTaskFeatures(componentName, LOCK_TASK_FEATURE_BLOCK_ACTIVITY_START_IN_TASK);
+                } else {
+                    dpm.setLockTaskFeatures(componentName, DevicePolicyManager.LOCK_TASK_FEATURE_NONE);
                 }
             } catch (SecurityException e) {
-                Log.e(TAG, "setLockTaskFeatures() failed - is the app a Device Owner?", e);
+                Log.e(TAG, "FAIL: setLockTaskFeatures()", e);
                 Toast.makeText(this, R.string.set_lock_features_failed, Toast.LENGTH_LONG).show();
             }
-            startLockTask();
-        } else {
-            Log.i(TAG, "isLockTaskPermitted == false");
-            requestDeviceAdmin();
         }
+        startLockTask();
     }
 
     private void requestDeviceAdmin() {
-        Toast.makeText(this, R.string.enable_device_admin, Toast.LENGTH_LONG).show();
+
         provisionOwner();
     }
 
