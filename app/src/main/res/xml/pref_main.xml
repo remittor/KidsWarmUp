@@ -19,10 +19,16 @@
             app:title="@string/timeout_title"
             app:useSimpleSummaryProvider="true" />
 
+        <SwitchPreferenceCompat
+            app:defaultValue="false"
+            app:key="timeout_init_use"
+            app:title="@string/timeout_init_switch" />
+
         <EditTextPreference
             app:defaultValue="5"
-            app:key="timeout_first"
-            app:title="@string/timeout_first_title"
+            app:key="timeout_init"
+            app:dependency="timeout_init_use"
+            app:title="@string/timeout_init_title"
             app:useSimpleSummaryProvider="true" />
 
         <EditTextPreference

@@ -70,6 +70,7 @@ public class MainActivity extends Activity implements View.OnGenericMotionListen
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.i(TAG, "onCreate: after_worker = " + getIntent().getBooleanExtra("after_worker", false));
         loadPrefs();
         setContentView(R.layout.activity_main);
         mainFrame = findViewById(R.id.mainFrame);
@@ -98,6 +99,9 @@ public class MainActivity extends Activity implements View.OnGenericMotionListen
                 setupUI();
             }
         }
+        getMainWorkerInfo();
+        boolean after_worker = getIntent().getBooleanExtra("after_worker", false);
+        initMainWorker(false, after_worker);
     }
 
     private void restoreInstanceState(Bundle savedInstanceState) {
@@ -135,19 +139,21 @@ public class MainActivity extends Activity implements View.OnGenericMotionListen
         SharedPreferences.Editor ed = prefs.edit();
         //ed.putString("workRequestId", workRequestId.toString());
         ed.commit();
-        Toast.makeText(this, "savePrefs", Toast.LENGTH_LONG).show();
+        Log.i(TAG, "savePrefs");
     }
 
     @Override
     protected void onDestroy() {
-        Log.i(TAG, "MainActivity onDestroy");
+        Log.i(TAG, "onDestroy");
         super.onDestroy();
         savePrefs();
     }
 
     @Override
     protected void onResume() {
-        Log.i(TAG, "MainActivity onResume");
+        //Log.i(TAG, "onResume");
+        Log.i(TAG, "onResume: after_worker = " + getIntent().getBooleanExtra("after_worker", false));
+        getIntent().putExtra("after_worker", false);
         super.onResume();
     }
 
@@ -157,7 +163,7 @@ public class MainActivity extends Activity implements View.OnGenericMotionListen
             boolean pref_changed = data.getBooleanExtra("pref_changed", false);
             Log.i(TAG, "pref_changed = " + pref_changed);
             if (pref_changed)
-                initMainWorker(0, 0);
+                initMainWorker(pref_changed, false);
             if (resultCode == Activity.RESULT_OK){
                 boolean app_close = data.getBooleanExtra("app_close", false);
                 //Toast.makeText(this, "RESULT_OK: app_close = " + app_close, Toast.LENGTH_LONG).show();
@@ -184,27 +190,60 @@ public class MainActivity extends Activity implements View.OnGenericMotionListen
         return true;
     }
 
-    private boolean initMainWorker(long repeatInterval, long flexInterval) {
-        TimeUnit tu = TimeUnit.MINUTES;
-        if (repeatInterval < 0)
-            return stopMainWorker();
-        boolean app_autorun = false;
-        if (repeatInterval == 0) {
-            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-            app_autorun = prefs.getBoolean("app_autorun", false);
-            try {
-                repeatInterval = Integer.parseInt(prefs.getString("timeout", "40"));
-                flexInterval = Integer.parseInt(prefs.getString("timeout_first", "5"));
-            } catch (Exception e) {
-                app_autorun = false;
-            }
-            if (!app_autorun || repeatInterval <= 0)
-                return stopMainWorker();
+    private boolean initMainWorker(boolean pref_changed, boolean after_worker) {
+        if (!pref_changed && !after_worker)
+            return false;
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        boolean app_autorun = prefs.getBoolean("app_autorun", false);
+        long timeout = 0;
+        try {
+            timeout = Integer.parseInt(prefs.getString("timeout", "empty"));
+        } catch (Exception e) {
+            app_autorun = false;
         }
+        boolean timeout_init_use = prefs.getBoolean("timeout_init_use", false);
+        long timeout_init = 0;
+        try {
+            timeout_init = Integer.parseInt(prefs.getString("timeout_init", "empty"));
+        } catch (Exception e) {
+            timeout_init_use = false;
+        }
+        if (!app_autorun && !timeout_init_use)
+            return stopMainWorker();
+
+        if (after_worker) {
+            if (!timeout_init_use)
+                return false;
+            timeout_init_use = false;  // disable initial timeout
+            SharedPreferences.Editor ed = prefs.edit();
+            ed.putBoolean("timeout_init_use", timeout_init_use).commit();
+            stopMainWorker();
+            if (!app_autorun)
+                return true;
+        }
+        timeout = (timeout < 15) ? 15 : timeout;
+        timeout_init = (timeout_init < 1) ? 1 : timeout_init;
+
+        long repeatInterval = timeout;
+        long flexInterval = 5;
+
+        if (timeout_init_use) {
+            if (timeout_init >= 10) {
+                repeatInterval = timeout_init + 5;
+                flexInterval = 5;
+            } else {
+                repeatInterval = 15;
+                flexInterval = (timeout_init > 10) ? 5 : 15 - timeout_init;
+            }
+            Log.i(TAG, "MainWorker: timeout_init = " + timeout_init);
+        } else {
+            Log.i(TAG, "MainWorker: timeout = " + timeout);
+        }
+        TimeUnit tu = TimeUnit.MINUTES;
         PeriodicWorkRequest request = new PeriodicWorkRequest.Builder(MainWorker.class, repeatInterval, tu, flexInterval, tu).build();
         WorkManager wrkmgr = WorkManager.getInstance(getApplicationContext());
         wrkmgr.enqueueUniquePeriodicWork(MainWorker.workName, ExistingPeriodicWorkPolicy.REPLACE, request);
-        Log.i(TAG, "MainWorker started: timeout = " + repeatInterval + ", flex = " + flexInterval);
+        Log.i(TAG, "MainWorker started: repeatInterval = " + repeatInterval + ", flexInterval = " + flexInterval + ", id = " + request.getId());
         return true;
     }
 
@@ -217,15 +256,12 @@ public class MainActivity extends Activity implements View.OnGenericMotionListen
             for (WorkInfo workInfo : workInfoList) {
                 WorkInfo.State state = workInfo.getState();
                 running = (state == WorkInfo.State.RUNNING) | (state == WorkInfo.State.ENQUEUED);
-                Log.i(TAG, "worker id  = " + workInfo.getId());
+                Log.i(TAG, "worker: " + workInfo);
             }
-            //return running;
         } catch (ExecutionException e) {
             e.printStackTrace();
-            //return false;
         } catch (InterruptedException e) {
             e.printStackTrace();
-            //return false;
         }
     }
 

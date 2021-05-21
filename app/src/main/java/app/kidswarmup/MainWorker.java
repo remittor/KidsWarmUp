@@ -36,6 +36,7 @@ public class MainWorker extends Worker {
             @Override
             public void run() {
                 Intent intent = new Intent(m_context, MainActivity.class);
+                intent.putExtra("after_worker", true);
                 intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
                 m_context.startActivity(intent);
             }

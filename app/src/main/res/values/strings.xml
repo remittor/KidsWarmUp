@@ -21,9 +21,10 @@
 
     <!-- Settings Preferences -->
     <string name="app_autorun">AutoRun</string>
-    <string name="timeout_title">Timeout (min)</string>
-    <string name="timeout_first_title">Current timeout (min)</string>
-    <string name="step_target_title">Step target</string>
+    <string name="timeout_title">Timeout (minutes)</string>
+    <string name="timeout_init_switch">Initial timeout enable</string>
+    <string name="timeout_init_title">Initial timeout (minutes)</string>
+    <string name="step_target_title">Step target (numbers)</string>
     <string name="menu_password">Password</string>
     <string name="app_version">Version</string>
     <string name="reply_title">Default reply action</string>

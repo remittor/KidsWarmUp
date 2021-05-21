@@ -92,7 +92,7 @@ public class SettingsActivity extends AppCompatActivity implements
             setPreferencesFromResource(R.xml.pref_main, rootKey);
             int t_num = InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL;
             setEditTextType("timeout", t_num);
-            setEditTextType("timeout_first", t_num);
+            setEditTextType("timeout_init", t_num);
             setEditTextType("step_target", t_num);
             setEditTextType("menu_password", t_num);
             androidx.preference.EditTextPreference edit = getPreferenceManager().findPreference("app_version");
