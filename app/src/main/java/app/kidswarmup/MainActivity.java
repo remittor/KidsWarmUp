@@ -338,11 +338,14 @@ public class MainActivity extends Activity implements View.OnGenericMotionListen
     }
 
     private void onMenuButtonClick() {
-        //PasswordDialog.show(mainFrame.getContext(), "123");
-        //Intent i = new Intent(MainActivity.this, SettingsActivity.class);
-        //startActivity(i);
-        Intent i = new Intent(this, SettingsActivity.class);
-        startActivityForResult(i, 1);
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        String psw = prefs.getString("menu_password", "1234");
+        if (psw.isEmpty()) {
+            Intent i = new Intent(this, SettingsActivity.class);
+            startActivityForResult(i, 1);
+        } else {
+            PasswordDialog.show(mainFrame.getContext(), psw, 1);
+        }
     }
 
     private void setupUI() {

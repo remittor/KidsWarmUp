@@ -15,7 +15,7 @@ import androidx.appcompat.app.AlertDialog;
 
 public class PasswordDialog {
 
-    public static void show(Context ctx, String pwd) {
+    public static void show(Context ctx, String pwd, int requestCode) {
         AlertDialog.Builder builder = new AlertDialog.Builder(ctx);
         builder.setTitle("Enter password");
         // Set up the input
@@ -32,7 +32,7 @@ public class PasswordDialog {
                 if (txt.equals(pwd)) {
                     Activity mainActivity = getActivity(ctx);
                     Intent i = new Intent(mainActivity, SettingsActivity.class);
-                    mainActivity.startActivity(i);
+                    mainActivity.startActivityForResult(i, requestCode);
                 }
             }
         });
