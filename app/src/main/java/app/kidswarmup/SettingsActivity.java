@@ -103,7 +103,9 @@ public class SettingsActivity extends AppCompatActivity implements
                 @Override
                 public CharSequence provideSummary(Preference preference) {
                     String psw = PreferenceManager.getDefaultSharedPreferences(getContext()).getString("menu_password", "");
-                    return psw.isEmpty() ? "Not set" : new String(new char[psw.length()]).replace('\0', '*');
+                    if (psw.isEmpty())
+                        return getResources().getString(R.string.not_set);
+                    return new String(new char[psw.length()]).replace('\0', '*');
                 }
             });
         }
