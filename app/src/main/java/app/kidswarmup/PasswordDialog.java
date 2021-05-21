@@ -9,9 +9,11 @@ import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 
 public class PasswordDialog {
@@ -19,11 +21,9 @@ public class PasswordDialog {
     public static void show(Context ctx, String pwd, int requestCode) {
         AlertDialog.Builder builder = new AlertDialog.Builder(ctx);
         builder.setTitle("Enter password");
-        //InputMethodManager imm = (InputMethodManager) ctx.getSystemService(ctx.INPUT_METHOD_SERVICE);
         // Set up the input
         final EditText input = new EditText(ctx);
         // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
-        //input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
         input.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL | InputType.TYPE_NUMBER_VARIATION_PASSWORD);
         builder.setView(input);
         // Set up the buttons
@@ -31,6 +31,8 @@ public class PasswordDialog {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 String txt = input.getText().toString();
+                InputMethodManager imm = (InputMethodManager) ctx.getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(input.getWindowToken(), 0);
                 dialog.dismiss();
                 if (txt.equals(pwd)) {
                     Activity mainActivity = getActivity(ctx);
@@ -44,12 +46,16 @@ public class PasswordDialog {
         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
+                InputMethodManager imm = (InputMethodManager) ctx.getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(input.getWindowToken(), 0);
                 dialog.cancel();
             }
         });
 
         builder.show();
-        //imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+        input.requestFocus();
+        InputMethodManager imm = (InputMethodManager) ctx.getSystemService(ctx.INPUT_METHOD_SERVICE);
+        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
     }
 
     public static Activity getActivity(Context context) {
