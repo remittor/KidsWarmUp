@@ -349,16 +349,18 @@ public class MainActivity extends Activity implements View.OnGenericMotionListen
     }
 
     private void setupUI() {
-        //Display display = getWindowManager().getDefaultDisplay();
-        //DisplayMetrics dispMetrics = new DisplayMetrics();
-        //display.getMetrics(dispMetrics);
+        Display display = getWindowManager().getDefaultDisplay();
+        DisplayMetrics dispMetrics = new DisplayMetrics();
+        display.getMetrics(dispMetrics);
         //float dpHeight = dispMetrics.heightPixels / dispMetrics.scaledDensity;
         //float dpWidth  = dispMetrics.widthPixels / dispMetrics.scaledDensity;
+        //Log.i(TAG, "display size: " + dispMetrics.widthPixels + " x " + dispMetrics.heightPixels + " (" + dispMetrics.scaledDensity + ")");
         //Log.i(TAG, "display size: " + dpWidth + " x " + dpHeight + " dp (" + dispMetrics.scaledDensity + ")");
         //Log.i(TAG, "canvas size: " + canvasFrame.getLayoutParams().width + " x " + canvasFrame.getLayoutParams().height);
-        ViewGroup.LayoutParams clp = canvasFrame.getLayoutParams();
-        LinearLayout.LayoutParams nlp = new LinearLayout.LayoutParams(clp.width, clp.height, 1);
-        canvasFrame.setLayoutParams(nlp);
+        //ViewGroup.LayoutParams clp = canvasFrame.getLayoutParams();
+        //LinearLayout.LayoutParams nlp = new LinearLayout.LayoutParams(dispMetrics.widthPixels, dispMetrics.widthPixels, 1);
+        //canvasFrame.setLayoutParams(nlp);
+        canvasFrame.setMinimumHeight(dispMetrics.widthPixels);
     }
 
     private void setControlsVisibility(boolean configuring) {
