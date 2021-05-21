@@ -12,52 +12,18 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/steps_left"
+        <FrameLayout
+            android:id="@+id/canvas_frame"
             android:layout_width="match_parent"
-            android:layout_height="0sp"
-            android:layout_weight="3"
+            android:layout_height="701dp"
+            android:layout_weight="1"
             android:text="" />
-
-        <TextView
-            android:id="@+id/steps_target"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1" />
-
-        <ProgressBar
-            android:id="@+id/progressBar"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="match_parent"
-            android:layout_height="0sp"
-            android:layout_weight="1" />
-
-        <EditText
-            android:id="@+id/steps_setup"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:hint="@string/steps_count_hint"
-            android:importantForAutofill="no"
-            android:inputType="number"
-            android:text="@string/default_steps_setup" />
-
-        <Button
-            android:id="@+id/button_start"
-            android:layout_width="match_parent"
-            android:layout_height="38dp"
-            android:text="@string/button_start_label" />
-
-        <Button
-            android:id="@+id/button_stop"
-            android:layout_width="match_parent"
-            android:layout_height="38dp"
-            android:text="@string/button_stop_label" />
 
         <FrameLayout
             android:id="@+id/bottom_frame"
             android:layout_width="match_parent"
-            android:layout_height="211dp">
+            android:layout_height="wrap_content"
+            android:layout_weight="2">
 
             <ImageView
                 android:id="@+id/imageView"

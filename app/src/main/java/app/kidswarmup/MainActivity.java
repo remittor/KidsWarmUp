@@ -6,15 +6,20 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Point;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Display;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -51,15 +56,8 @@ public class MainActivity extends Activity implements View.OnGenericMotionListen
     private Context appContext;
     private boolean rootPresent = false;
     private FrameLayout mainFrame;
-    private TextView stepsCurrentTextView;
-    private TextView stepsTargetTextView;
-    private ProgressBar progressBar;
-    private EditText stepsTargetEditText;
-    private Button buttonStart;
-    private Button buttonStop;
+    private FrameLayout canvasFrame;
     private FloatingActionButton buttonMenu;
-    private Button buttonDevAdmInstall;
-    private Button buttonDevAdmDelete;
     private int stepsCurrent = 0;
     private int stepsTarget = 0;
     private boolean configured = false;
@@ -77,14 +75,7 @@ public class MainActivity extends Activity implements View.OnGenericMotionListen
         mainFrame.setOnGenericMotionListener(this);
         //mainFrame.setOnKeyListener(this);
         //mainFrame.getContext();
-        stepsCurrentTextView = findViewById(R.id.steps_left);
-        stepsTargetEditText = findViewById(R.id.steps_setup);
-        progressBar = findViewById(R.id.progressBar);
-        stepsTargetTextView = findViewById(R.id.steps_target);
-        buttonStart = findViewById(R.id.button_start);
-        buttonStart.setOnClickListener(this);
-        buttonStop = findViewById(R.id.button_stop);
-        buttonStop.setOnClickListener(this);
+        canvasFrame = findViewById(R.id.canvas_frame);
         buttonMenu = findViewById(R.id.menu_btn);
         buttonMenu.setOnClickListener(this);
         appContext = getApplicationContext();
@@ -92,11 +83,12 @@ public class MainActivity extends Activity implements View.OnGenericMotionListen
         dpm = (DevicePolicyManager) getSystemService(DEVICE_POLICY_SERVICE);
 
         enableKioskMode();
+        setupUI();
+        //setControlsVisibility(false);
         if (savedInstanceState != null) {
             restoreInstanceState(savedInstanceState);
             if (configured) {
-                setControlsVisibility(false);
-                setupUI();
+                //
             }
         }
         getMainWorkerInfo();
@@ -155,6 +147,7 @@ public class MainActivity extends Activity implements View.OnGenericMotionListen
         Log.i(TAG, "onResume: after_worker = " + getIntent().getBooleanExtra("after_worker", false));
         getIntent().putExtra("after_worker", false);
         super.onResume();
+        setControlsVisibility(true);
     }
 
     @Override
@@ -331,8 +324,6 @@ public class MainActivity extends Activity implements View.OnGenericMotionListen
     private void countStep() {
         Log.i(TAG, "stepsCurrent = " + stepsCurrent + ", stepsTarget = " + stepsTarget);
         stepsCurrent += 1;
-        progressBar.incrementProgressBy(1);
-        stepsCurrentTextView.setText(String.valueOf(stepsCurrent));
         if (stepsCurrent >= stepsTarget) {
             configured = false;
             setControlsVisibility(true);
@@ -342,10 +333,6 @@ public class MainActivity extends Activity implements View.OnGenericMotionListen
     @Override
     public void onClick(View view) {
         int id = view.getId();
-        if (id == R.id.button_start)
-            onStartButtonClick();
-        if (id == R.id.button_stop)
-            onStopButtonClick();
         if (id == R.id.menu_btn)
             onMenuButtonClick();
     }
@@ -358,41 +345,21 @@ public class MainActivity extends Activity implements View.OnGenericMotionListen
         startActivityForResult(i, 1);
     }
 
-    private void onStopButtonClick() {
-        setupUI();
-        disableKioskMode();
-    }
-
-    private void onStartButtonClick() {
-        try {
-            stepsTarget = Integer.parseInt(stepsTargetEditText.getText().toString());
-        } catch (NumberFormatException ignored) {
-            // May be thrown if stepsTargetEditText is empty
-            return;
-        }
-        setControlsVisibility(false);
-        stepsCurrent = 0;
-        setupUI();
-        enableKioskMode();
-        configured = true;
-    }
-
     private void setupUI() {
-        stepsCurrentTextView.setText(String.valueOf(stepsCurrent));
-        stepsTargetTextView.setText(String.valueOf(stepsTarget));
-        progressBar.setMax(stepsTarget);
-        progressBar.setProgress(stepsCurrent);
+        //Display display = getWindowManager().getDefaultDisplay();
+        //DisplayMetrics dispMetrics = new DisplayMetrics();
+        //display.getMetrics(dispMetrics);
+        //float dpHeight = dispMetrics.heightPixels / dispMetrics.scaledDensity;
+        //float dpWidth  = dispMetrics.widthPixels / dispMetrics.scaledDensity;
+        //Log.i(TAG, "display size: " + dpWidth + " x " + dpHeight + " dp (" + dispMetrics.scaledDensity + ")");
+        //Log.i(TAG, "canvas size: " + canvasFrame.getLayoutParams().width + " x " + canvasFrame.getLayoutParams().height);
+        ViewGroup.LayoutParams clp = canvasFrame.getLayoutParams();
+        LinearLayout.LayoutParams nlp = new LinearLayout.LayoutParams(clp.width, clp.height, 1);
+        canvasFrame.setLayoutParams(nlp);
     }
 
     private void setControlsVisibility(boolean configuring) {
         int visibility = configuring ? View.VISIBLE : View.GONE;
-        stepsTargetEditText.setVisibility(visibility);
-        buttonStart.setVisibility(visibility);
-        if (configuring) {
-            buttonStop.setVisibility(View.GONE);
-        } else {
-            buttonStop.setVisibility(View.VISIBLE);
-        }
     }
 
     private void enableKioskMode() {
@@ -413,7 +380,7 @@ public class MainActivity extends Activity implements View.OnGenericMotionListen
         if (dpm.isLockTaskPermitted(packageName) == false) {
             Log.i(TAG, "isLockTaskPermitted() returned FALSE");
             //Toast.makeText(this, R.string.set_lock_permitted_failed, Toast.LENGTH_LONG).show();
-            //Toast.makeText(this, R.string.enable_device_admin, Toast.LENGTH_LONG).show();
+            Toast.makeText(this, R.string.enable_device_admin, Toast.LENGTH_LONG).show();
             return;
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
@@ -431,35 +398,8 @@ public class MainActivity extends Activity implements View.OnGenericMotionListen
         startLockTask();
     }
 
-    private void requestDeviceAdmin() {
-
-        provisionOwner();
-    }
-
     private void disableKioskMode() {
         Log.i(TAG, "disableKioskMode()");
         stopLockTask();
     }
-
-    private void provisionOwner() {
-        DevicePolicyManager manager = (DevicePolicyManager) getSystemService(DEVICE_POLICY_SERVICE);
-        ComponentName componentName = DeviceAdminReceiver.getComponentName(this);
-
-        if (!manager.isAdminActive(componentName)) {
-            Log.i(TAG, "Device admin is not active");
-            Intent intent = new Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN);
-            intent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, componentName);
-            startActivityForResult(intent, 0);
-            return;
-        }
-
-        if (manager.isDeviceOwnerApp(getPackageName())) {
-            Toast.makeText(this, R.string.app_is_device_admin, Toast.LENGTH_LONG).show();
-            Log.i(TAG, "App is device owner");
-        } else {
-            Toast.makeText(this, R.string.app_is_not_device_admin, Toast.LENGTH_LONG).show();
-            Log.i(TAG, "App is NOT device owner");
-        }
-    }
-
 }
