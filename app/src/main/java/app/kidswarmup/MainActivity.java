@@ -339,9 +339,9 @@ public class MainActivity extends Activity implements View.OnGenericMotionListen
     }
 
     private void setupUI() {
-        Display display = getWindowManager().getDefaultDisplay();
-        DisplayMetrics dispMetrics = new DisplayMetrics();
-        display.getMetrics(dispMetrics);
+        //Display display = getWindowManager().getDefaultDisplay();
+        //DisplayMetrics dispMetrics = new DisplayMetrics();
+        //display.getMetrics(dispMetrics);
         //float dpHeight = dispMetrics.heightPixels / dispMetrics.scaledDensity;
         //float dpWidth  = dispMetrics.widthPixels / dispMetrics.scaledDensity;
         //Log.i(TAG, "display size: " + dispMetrics.widthPixels + " x " + dispMetrics.heightPixels + " (" + dispMetrics.scaledDensity + ")");
