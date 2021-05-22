@@ -9,26 +9,25 @@ import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.text.TextPaint;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
 
-/**
- * TODO: document your custom view class.
- */
 public class FrameProgress extends View {
 
     private static final String TAG = FrameProgress.class.getSimpleName();
 
-    private TextPaint mTextPaint;
-    private float mTextWidth;
-    private float mTextHeight;
-
+    private boolean sizeFixed = false;
+    private TextPaint pTextLeft;
+    private TextPaint pTextRight;
     private Paint pBigCircle;
     private Paint pSmallCircle;
     private Paint pMainLine;
     private Paint pBigArc;
 
-    private int sectorNum = 60;
-    private int selectNum = 3;
+    private int sectorNum = 0;
+    private int selectNum = 0;
 
     public FrameProgress(Context context) {
         super(context);
@@ -46,9 +45,17 @@ public class FrameProgress extends View {
     }
 
     private void init(AttributeSet attrs, int defStyle) {
-        mTextPaint = new TextPaint();
-        mTextPaint.setFlags(Paint.ANTI_ALIAS_FLAG);
-        mTextPaint.setTextAlign(Paint.Align.LEFT);
+        pTextLeft = new TextPaint();
+        pTextLeft.setFlags(Paint.ANTI_ALIAS_FLAG);
+        pTextLeft.setTextAlign(Paint.Align.LEFT);
+        pTextLeft.setTextSize(120);
+        pTextLeft.setStrokeWidth(2.0f);
+        pTextLeft.setStyle(Paint.Style.FILL_AND_STROKE);
+        pTextLeft.setColor(Color.BLACK);
+
+        pTextRight = new TextPaint(pTextLeft);
+        pTextRight.setColor(Color.BLACK);
+        pTextRight.setTextAlign(Paint.Align.RIGHT);
 
         pBigCircle = new Paint();
         pBigCircle.setColor(Color.YELLOW);
@@ -64,7 +71,7 @@ public class FrameProgress extends View {
         pMainLine.setStrokeWidth(4);
 
         pBigArc = new Paint();
-        pBigArc.setColor(0x9F9F0000);
+        pBigArc.setColor(0x9F9F0000);  // RED
         pBigArc.setStyle(Paint.Style.FILL);
 
         invalidateTextPaintAndMeasurements();
@@ -81,11 +88,22 @@ public class FrameProgress extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+        int viewWidth = getWidth();
+        if (!sizeFixed) {
+            sizeFixed = true;
+            Log.i(TAG, "onDraw: width = " + getWidth() + ", height = " + getHeight() + " (first call)");
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(-1, viewWidth, 0);
+            setLayoutParams(lp);
+            setMinimumHeight(viewWidth);
+        }
+        if (getHeight() != getWidth())
+            return;
 
         int paddingLeft = getPaddingLeft();
         int paddingTop = getPaddingTop();
         int paddingRight = getPaddingRight();
         int paddingBottom = getPaddingBottom();
+        //Log.i(TAG, "onDraw: padding: L = " + paddingLeft + ", T = " + paddingTop + ", R = " + paddingRight + ", B = " + paddingBottom);
 
         int contentWidth = getWidth() - paddingLeft - paddingRight;
         int contentHeight = getHeight() - paddingTop - paddingBottom;
@@ -113,7 +131,8 @@ public class FrameProgress extends View {
         canvas.drawCircle(canvasCX, canvasCY, radius2, pSmallCircle);
         canvas.drawCircle(canvasCX, canvasCY, radius2, pMainLine);
 
-        //canvas.drawText("test",paddingLeft + (contentWidth - mTextWidth) / 2,paddingTop + (contentHeight + mTextHeight) / 2, mTextPaint);
+        canvas.drawText(Integer.toString(selectNum),4, (int)pTextLeft.getTextSize(), pTextLeft);
+        canvas.drawText(Integer.toString(sectorNum),viewWidth - 4, (int)pTextRight.getTextSize(), pTextRight);
     }
 
     public int getSelectNumber() {

@@ -60,9 +60,7 @@ public class MainActivity extends Activity implements View.OnGenericMotionListen
     private FloatingActionButton buttonMenu;
     private int stepsCurrent = 0;
     private int stepsTarget = 0;
-    private boolean configured = false;
     private int prevButton = 0;
-    private boolean firstStepHalfDone = false;
     private DevicePolicyManager dpm;
 
     @Override
@@ -73,8 +71,6 @@ public class MainActivity extends Activity implements View.OnGenericMotionListen
         setContentView(R.layout.activity_main);
         mainFrame = findViewById(R.id.mainFrame);
         mainFrame.setOnGenericMotionListener(this);
-        //mainFrame.setOnKeyListener(this);
-        //mainFrame.getContext();
         progress = findViewById(R.id.canvas_frame);
         buttonMenu = findViewById(R.id.menu_btn);
         buttonMenu.setOnClickListener(this);
@@ -84,24 +80,18 @@ public class MainActivity extends Activity implements View.OnGenericMotionListen
 
         enableKioskMode();
         setupUI();
-        //setControlsVisibility(false);
         if (savedInstanceState != null) {
             restoreInstanceState(savedInstanceState);
-            if (configured) {
-                //
-            }
         }
         getMainWorkerInfo();
         boolean after_worker = getIntent().getBooleanExtra("after_worker", false);
         initMainWorker(false, after_worker);
+        initProgress();
     }
 
     private void restoreInstanceState(Bundle savedInstanceState) {
         stepsCurrent = savedInstanceState.getInt("stepsCurrent");
-        stepsTarget = savedInstanceState.getInt("stepsTarget");
-        configured = savedInstanceState.getBoolean("configured");
         prevButton = savedInstanceState.getInt("prevButton");
-        firstStepHalfDone = savedInstanceState.getBoolean("firstStepHalfDone");
     }
 
     @Override
@@ -114,10 +104,7 @@ public class MainActivity extends Activity implements View.OnGenericMotionListen
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt("stepsCurrent", stepsCurrent);
-        outState.putInt("stepsTarget", stepsTarget);
-        outState.putBoolean("configured", configured);
         outState.putInt("prevButton", prevButton);
-        outState.putBoolean("firstStepHalfDone", firstStepHalfDone);
     }
 
     public void loadPrefs(){
@@ -147,7 +134,7 @@ public class MainActivity extends Activity implements View.OnGenericMotionListen
         Log.i(TAG, "onResume: after_worker = " + getIntent().getBooleanExtra("after_worker", false));
         getIntent().putExtra("after_worker", false);
         super.onResume();
-        setControlsVisibility(true);
+        initProgress();
     }
 
     @Override
@@ -324,9 +311,12 @@ public class MainActivity extends Activity implements View.OnGenericMotionListen
     private void countStep() {
         Log.i(TAG, "stepsCurrent = " + stepsCurrent + ", stepsTarget = " + stepsTarget);
         stepsCurrent += 1;
+        progress.setSelectNumber(stepsCurrent);
+        progress.invalidate();
         if (stepsCurrent >= stepsTarget) {
-            configured = false;
-            setControlsVisibility(true);
+            Toast.makeText(this, "BRAVO !!!", Toast.LENGTH_LONG).show();
+            disableKioskMode();
+            finish();
         }
     }
 
@@ -360,11 +350,21 @@ public class MainActivity extends Activity implements View.OnGenericMotionListen
         //ViewGroup.LayoutParams clp = canvasFrame.getLayoutParams();
         //LinearLayout.LayoutParams nlp = new LinearLayout.LayoutParams(dispMetrics.widthPixels, dispMetrics.widthPixels, 1);
         //canvasFrame.setLayoutParams(nlp);
-        progress.setMinimumHeight(dispMetrics.widthPixels);
+        //progress.setMinimumHeight(dispMetrics.widthPixels);
     }
 
     private void initProgress() {
-        //
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        int step_target = 3;
+        try {
+            step_target = Integer.parseInt(prefs.getString("step_target", "_empty_"));
+        } catch (Exception e) {
+            step_target = 3;
+        }
+        step_target = (step_target < 3) ? 3 : step_target;
+        stepsTarget = step_target;
+        progress.setSectorNumber(stepsTarget);
+        progress.invalidate();
     }
 
     private void setControlsVisibility(boolean configuring) {
