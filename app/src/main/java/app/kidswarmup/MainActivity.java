@@ -56,7 +56,7 @@ public class MainActivity extends Activity implements View.OnGenericMotionListen
     private Context appContext;
     private boolean rootPresent = false;
     private FrameLayout mainFrame;
-    private FrameLayout canvasFrame;
+    private FrameProgress progress;
     private FloatingActionButton buttonMenu;
     private int stepsCurrent = 0;
     private int stepsTarget = 0;
@@ -75,7 +75,7 @@ public class MainActivity extends Activity implements View.OnGenericMotionListen
         mainFrame.setOnGenericMotionListener(this);
         //mainFrame.setOnKeyListener(this);
         //mainFrame.getContext();
-        canvasFrame = findViewById(R.id.canvas_frame);
+        progress = findViewById(R.id.canvas_frame);
         buttonMenu = findViewById(R.id.menu_btn);
         buttonMenu.setOnClickListener(this);
         appContext = getApplicationContext();
@@ -360,7 +360,11 @@ public class MainActivity extends Activity implements View.OnGenericMotionListen
         //ViewGroup.LayoutParams clp = canvasFrame.getLayoutParams();
         //LinearLayout.LayoutParams nlp = new LinearLayout.LayoutParams(dispMetrics.widthPixels, dispMetrics.widthPixels, 1);
         //canvasFrame.setLayoutParams(nlp);
-        canvasFrame.setMinimumHeight(dispMetrics.widthPixels);
+        progress.setMinimumHeight(dispMetrics.widthPixels);
+    }
+
+    private void initProgress() {
+        //
     }
 
     private void setControlsVisibility(boolean configuring) {
