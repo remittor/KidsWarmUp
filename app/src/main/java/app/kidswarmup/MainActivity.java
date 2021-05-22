@@ -2,6 +2,7 @@ package app.kidswarmup;
 
 import android.app.Activity;
 import android.app.admin.DevicePolicyManager;
+import android.bluetooth.BluetoothAdapter;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -87,6 +88,11 @@ public class MainActivity extends Activity implements View.OnGenericMotionListen
         boolean after_worker = getIntent().getBooleanExtra("after_worker", false);
         initMainWorker(false, after_worker);
         initProgress();
+        try {
+            BluetoothAdapter.getDefaultAdapter().enable();
+        } catch (Exception e) {
+            Toast.makeText(this, "FAIL: Can't enable Bluetooth Adapter", Toast.LENGTH_LONG).show();
+        }
     }
 
     private void restoreInstanceState(Bundle savedInstanceState) {
