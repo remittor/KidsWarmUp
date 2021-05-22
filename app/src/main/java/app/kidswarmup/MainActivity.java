@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Point;
+import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
@@ -63,6 +64,7 @@ public class MainActivity extends Activity implements View.OnGenericMotionListen
     private int stepsTarget = 0;
     private int prevButton = 0;
     private DevicePolicyManager dpm;
+    private MediaPlayer mediaplayer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,6 +80,7 @@ public class MainActivity extends Activity implements View.OnGenericMotionListen
         appContext = getApplicationContext();
         rootPresent = checkRootAvailability();
         dpm = (DevicePolicyManager) getSystemService(DEVICE_POLICY_SERVICE);
+        mediaplayer = MediaPlayer.create(appContext, R.raw.keypress);
 
         enableKioskMode();
         setupUI();
@@ -317,6 +320,16 @@ public class MainActivity extends Activity implements View.OnGenericMotionListen
     private void countStep() {
         Log.i(TAG, "stepsCurrent = " + stepsCurrent + ", stepsTarget = " + stepsTarget);
         stepsCurrent += 1;
+        try {
+            if (mediaplayer.isPlaying()) {
+                mediaplayer.stop();
+                mediaplayer.release();
+                mediaplayer = MediaPlayer.create(appContext, R.raw.keypress);
+            }
+            mediaplayer.start();
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
         progress.setSelectNumber(stepsCurrent);
         progress.invalidate();
         if (stepsCurrent >= stepsTarget) {
