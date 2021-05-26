@@ -33,9 +33,12 @@ public class MainWorker extends Worker {
     @Override
     public Result doWork() {
         int zen_mode = getZenModeState();
-        Log.i(TAG, "doWork: workerId = " + getId() + ", zen_mode = " + zen_mode);
+        int air_mode = getAirplaneMode();
+        Log.i(TAG, "doWork: workerId = " + getId() + ", zen_mode = " + zen_mode + "air_mode = " + air_mode);
         if (zen_mode > 0)
             return Result.success();  // kids sleep
+        if (air_mode > 0)
+            return Result.success();  // device sleep
 
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
@@ -70,17 +73,14 @@ public class MainWorker extends Worker {
     }
 
     public int getZenModeState() {
-        int zenModeValue = -1;
-        try {
-            zenModeValue = Settings.Global.getInt(m_context.getContentResolver(), "zen_mode");
-            // 0 = DnD : OFF
-            // 1 = DnD : ON - Priority Only
-            // 2 = DnD : ON - Total Silence
-            // 3 = DnD : ON - Alarms Only
-        } catch (Settings.SettingNotFoundException e) {
-            //e.printStackTrace();
-            zenModeValue = -1;
-        }
-        return zenModeValue;
+        return Settings.Global.getInt(m_context.getContentResolver(), "zen_mode", -1);
+        // 0 = DnD : OFF
+        // 1 = DnD : ON - Priority Only
+        // 2 = DnD : ON - Total Silence
+        // 3 = DnD : ON - Alarms Only
+    }
+
+    public int getAirplaneMode() {
+        return Settings.Global.getInt(m_context.getContentResolver(), Settings.Global.AIRPLANE_MODE_ON, -1);
     }
 }
