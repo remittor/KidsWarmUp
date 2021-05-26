@@ -46,11 +46,14 @@ public class SettingsActivity extends AppCompatActivity implements
     private ComponentName devAdmName;  // app.kidswarmup/app.kidswarmup.DeviceAdminReceiver
     private boolean prefChanged = false;
     private static String app_version;
+    private int menu_depth = 0;
+    private CharSequence main_title;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.settings_activity);
+        menu_depth = 0;
         appName = getEnglishString(R.string.app_name);
         pkgName = getApplicationContext().getPackageName();
         devAdmName = DeviceAdminReceiver.getComponentName(this);
@@ -69,6 +72,7 @@ public class SettingsActivity extends AppCompatActivity implements
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }
+        main_title = getTitle();
     }
 
     @Override
@@ -83,6 +87,7 @@ public class SettingsActivity extends AppCompatActivity implements
                 .replace(R.id.settings, fragment)
                 .addToBackStack(null)
                 .commit();
+        menu_depth++;
         setTitle(pref.getTitle());
         return true;
     }
@@ -130,6 +135,11 @@ public class SettingsActivity extends AppCompatActivity implements
         }
     }
 
+    //@Override
+    //protected void onResume() {
+    //    super.onResume();
+    //}
+
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         Log.i(TAG, "change key = " + key);
@@ -137,8 +147,17 @@ public class SettingsActivity extends AppCompatActivity implements
             prefChanged = true;
     }
 
+    private void menuReturn() {
+        menu_depth--;
+        if (menu_depth <= 0) {
+            menu_depth = 0;
+            setTitle(main_title);
+        }
+    }
+
     @Override
     public void onBackPressed() {
+        menuReturn();
         setSettingsResult(Activity.RESULT_CANCELED, false);
         super.onBackPressed();
     }
@@ -146,9 +165,10 @@ public class SettingsActivity extends AppCompatActivity implements
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
+            menuReturn();
             setSettingsResult(Activity.RESULT_OK, false);
-            NavUtils.navigateUpFromSameTask(this);
-            //super.onBackPressed();
+            //NavUtils.navigateUpFromSameTask(this);
+            super.onBackPressed();
             return true;
         }
         return super.onOptionsItemSelected(item);
