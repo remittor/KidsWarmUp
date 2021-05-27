@@ -7,9 +7,11 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.text.InputType;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -17,6 +19,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 
 public class PasswordDialog {
+
+    private static final String TAG = PasswordDialog.class.getSimpleName();
 
     public static void show(Context ctx, String pwd, int requestCode) {
         AlertDialog.Builder builder = new AlertDialog.Builder(ctx);
@@ -26,7 +30,7 @@ public class PasswordDialog {
         // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
         input.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL | InputType.TYPE_NUMBER_VARIATION_PASSWORD);
         builder.setView(input);
-        // Set up the buttons
+        // Set up the buttons on dialog
         builder.setPositiveButton("Enter", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -52,7 +56,20 @@ public class PasswordDialog {
             }
         });
 
-        builder.show();
+        final AlertDialog dialog = builder.show();
+        // Set up the actions into textedit
+        input.setOnKeyListener(new EditText.OnKeyListener() {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                if (event.getAction() == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER) {
+                    Button btn_enter = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+                    btn_enter.callOnClick();
+                    return true;
+                }
+                return false;
+            }
+        });
+
         input.requestFocus();
         InputMethodManager imm = (InputMethodManager) ctx.getSystemService(ctx.INPUT_METHOD_SERVICE);
         imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
