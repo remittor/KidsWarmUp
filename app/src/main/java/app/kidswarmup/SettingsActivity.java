@@ -167,8 +167,11 @@ public class SettingsActivity extends AppCompatActivity implements
         if (item.getItemId() == android.R.id.home) {
             menuReturn();
             setSettingsResult(Activity.RESULT_OK, false);
-            //NavUtils.navigateUpFromSameTask(this);
-            super.onBackPressed();
+            if (menu_depth > 0) {
+                super.onBackPressed();
+            } else {
+                NavUtils.navigateUpFromSameTask(this);
+            }
             return true;
         }
         return super.onOptionsItemSelected(item);

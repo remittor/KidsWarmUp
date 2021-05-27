@@ -29,7 +29,7 @@ public class FrameProgress extends View {
     private Paint pMainLine;
     private Paint pBigArc;
 
-    private int sectorNum = 0;
+    private int sectorNum = 3;
     private int selectNum = 0;
 
     public FrameProgress(Context context) {
@@ -157,7 +157,7 @@ public class FrameProgress extends View {
     }
 
     public void setSelectNumber(int num) {
-        selectNum = num;
+        selectNum = (num < 0) ? 0 : num;
         //invalidateTextPaintAndMeasurements();
     }
 
@@ -166,7 +166,7 @@ public class FrameProgress extends View {
     }
 
     public void setSectorNumber(int num) {
-        sectorNum = num;
+        sectorNum = (num < 3) ? 3 : num;
         //invalidateTextPaintAndMeasurements();
     }
 
