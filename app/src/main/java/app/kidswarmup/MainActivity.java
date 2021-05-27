@@ -101,6 +101,8 @@ public class MainActivity extends Activity implements View.OnGenericMotionListen
     private void restoreInstanceState(Bundle savedInstanceState) {
         stepsCurrent = savedInstanceState.getInt("stepsCurrent");
         prevButton = savedInstanceState.getInt("prevButton");
+        Log.i(TAG, "restoreState: stepsCurrent = " + stepsCurrent + ", prevButton = " + prevButton);
+        progress.setSelectNumber(stepsCurrent);
     }
 
     @Override

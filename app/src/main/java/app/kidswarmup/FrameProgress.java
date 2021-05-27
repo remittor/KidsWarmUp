@@ -1,6 +1,7 @@
 package app.kidswarmup;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -95,16 +96,25 @@ public class FrameProgress extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+        int orientation = getResources().getConfiguration().orientation;
         int viewWidth = getWidth();
+        int viewHeight = getHeight();
         if (!sizeFixed) {
             sizeFixed = true;
-            Log.i(TAG, "onDraw: width = " + getWidth() + ", height = " + getHeight() + " (first call)");
-            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(-1, viewWidth, 0);
-            setLayoutParams(lp);
-            setMinimumHeight(viewWidth);
+            Log.i(TAG, "onDraw: orientation = " + orientation + ", width = " + getWidth() + ", height = " + getHeight() + " (first draw)");
+            LinearLayout.LayoutParams lp = null;
+            if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                lp = new LinearLayout.LayoutParams(viewHeight, -1, 0);
+                setLayoutParams(lp);
+                setMinimumWidth(viewHeight);
+            } else {
+                lp = new LinearLayout.LayoutParams(-1, viewWidth, 0);
+                setLayoutParams(lp);
+                setMinimumHeight(viewWidth);
+            }
         }
-        if (getHeight() != getWidth())
-            return;
+        //if (getHeight() != getWidth())
+        //    return;
 
         int paddingLeft = getPaddingLeft();
         int paddingTop = getPaddingTop();
