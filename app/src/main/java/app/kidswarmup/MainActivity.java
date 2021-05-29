@@ -306,15 +306,13 @@ public class MainActivity extends Activity implements View.OnGenericMotionListen
         if (event.getActionMasked() != ACTION_BUTTON_PRESS)
             return false;
         int buttonState = event.getButtonState();
-        if ((prevButton == 0 || prevButton == BUTTON_SECONDARY) && buttonState == BUTTON_PRIMARY) {
-            countStep();
-            prevButton = buttonState;
-            return false;
-        }
-        if ((prevButton == 0 || prevButton == BUTTON_PRIMARY) && buttonState == BUTTON_SECONDARY) {
-            countStep();
-            prevButton = buttonState;
-            return false;
+        //Log.i(TAG, "onGenericMotion: src = " + Integer.toHexString(source) + ", btn = " + Integer.toHexString(buttonState));
+        if (buttonState >= BUTTON_PRIMARY) {
+            if (prevButton == 0 || prevButton != buttonState) {
+                countStep();
+                prevButton = buttonState;
+                return false;
+            }
         }
         return false;
     }
