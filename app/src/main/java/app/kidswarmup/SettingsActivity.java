@@ -53,7 +53,7 @@ public class SettingsActivity extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.settings_activity);
-        menu_depth = 0;
+        menu_depth = 1;
         appName = getEnglishString(R.string.app_name);
         pkgName = getApplicationContext().getPackageName();
         devAdmName = DeviceAdminReceiver.getComponentName(this);
@@ -149,29 +149,27 @@ public class SettingsActivity extends AppCompatActivity implements
 
     private void menuReturn() {
         menu_depth--;
-        if (menu_depth <= 0) {
-            menu_depth = 0;
+        if (menu_depth <= 1)
             setTitle(main_title);
-        }
     }
 
     @Override
     public void onBackPressed() {
-        menuReturn();
         setSettingsResult(Activity.RESULT_CANCELED, false);
         super.onBackPressed();
+        menuReturn();
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
-            menuReturn();
             setSettingsResult(Activity.RESULT_OK, false);
-            if (menu_depth > 0) {
+            if (menu_depth >= 2) {
                 super.onBackPressed();
             } else {
                 NavUtils.navigateUpFromSameTask(this);
             }
+            menuReturn();
             return true;
         }
         return super.onOptionsItemSelected(item);
