@@ -3,6 +3,7 @@ package app.kidswarmup;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.hardware.display.DisplayManager;
 import android.os.Handler;
 import android.os.Looper;
@@ -12,8 +13,11 @@ import android.util.Log;
 import android.view.Display;
 
 import androidx.annotation.NonNull;
+import androidx.preference.PreferenceManager;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
+
+import java.time.LocalTime;
 import java.util.concurrent.TimeUnit;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
@@ -32,10 +36,26 @@ public class MainWorker extends Worker {
     @NonNull
     @Override
     public Result doWork() {
-        int zen_mode = getZenModeState();
+        boolean sleep_active = false;
+        try {
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(m_context);
+            LocalTime sleep_time_start  = LocalTime.parse(prefs.getString("sleep_time_start", ""));
+            LocalTime sleep_time_finish = LocalTime.parse(prefs.getString("sleep_time_finish", ""));
+            LocalTime ctime = LocalTime.of(LocalTime.now().getHour(), LocalTime.now().getMinute());
+            if (sleep_time_finish.isAfter(sleep_time_start)) {
+                if (ctime.isAfter(sleep_time_start) && ctime.isBefore(sleep_time_finish))
+                    sleep_active = true;
+            } else {
+                if (ctime.isAfter(sleep_time_start) || ctime.isBefore(sleep_time_finish))
+                    sleep_active = true;
+            }
+        } catch (Exception e) {
+            sleep_active = false;
+        }
+        int zen_mode = 0; // getZenModeState();
         int air_mode = getAirplaneMode();
-        Log.i(TAG, "doWork: workerId = " + getId() + ", zen_mode = " + zen_mode + "air_mode = " + air_mode);
-        if (zen_mode > 0)
+        Log.i(TAG, "doWork: workerId = " + getId() + ", sleep = " + sleep_active + ", air_mode = " + air_mode);
+        if (sleep_active || zen_mode > 0)
             return Result.success();  // kids sleep
         if (air_mode > 0)
             return Result.success();  // device sleep
