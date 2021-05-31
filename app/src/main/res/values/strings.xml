@@ -14,6 +14,7 @@
     <!-- Preference Titles -->
     <string name="app_close">App Close</string>
     <string name="settings_header">Settings</string>
+    <string name="aux_header">Aux Settings</string>
     <string name="devadm_header">Device Admin</string>
 
     <!-- Settings Preferences -->
@@ -25,6 +26,14 @@
     <string name="menu_password">Password</string>
     <string name="not_set">Not set</string>
     <string name="app_version">Version</string>
+
+    <!-- Aux Settings Preferences -->
+    <string name="aux_setup_title">Aux Settings</string>
+    <string name="aux_setup_summary"></string>
+    <string name="aux_title"></string>
+    <string name="aux_sleep_time_title">Sleep time</string>
+    <string name="aux_sleep_time_start_title">Sleep time init</string>
+    <string name="aux_sleep_time_finish_title">Sleep time close</string>
 
     <!-- Device Admin -->
     <string name="devadm_setup_title">Device Admin Settings</string>

@@ -48,11 +48,11 @@
 
     </PreferenceCategory>
 
-    <PreferenceCategory app:title="@string/devadm_header">
+    <PreferenceCategory>
         <Preference
-            app:title="@string/devadm_setup_title"
-            app:summary="@string/devadm_setup_summary"
-            app:fragment="app.kidswarmup.SettingsActivity$DeviceAdminFragment"
+            app:title="@string/aux_setup_title"
+            app:summary="@string/aux_setup_summary"
+            app:fragment="app.kidswarmup.SettingsActivity$AuxFragment"
             />
     </PreferenceCategory>
 

@@ -1,0 +1,27 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory app:title="@string/aux_sleep_time_title">
+        <EditTextPreference
+            app:defaultValue="21:05"
+            app:key="sleep_time_start"
+            app:title="@string/aux_sleep_time_start_title"
+            app:useSimpleSummaryProvider="true" />
+
+        <EditTextPreference
+            app:defaultValue="8:01"
+            app:key="sleep_time_finish"
+            app:title="@string/aux_sleep_time_finish_title"
+            app:useSimpleSummaryProvider="true" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="@string/devadm_header">
+        <Preference
+            app:title="@string/devadm_setup_title"
+            app:summary="@string/devadm_setup_summary"
+            app:fragment="app.kidswarmup.SettingsActivity$DeviceAdminFragment"
+            />
+    </PreferenceCategory>
+
+</PreferenceScreen>

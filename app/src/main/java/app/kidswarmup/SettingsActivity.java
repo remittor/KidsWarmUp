@@ -48,6 +48,7 @@ public class SettingsActivity extends AppCompatActivity implements
     private static String app_version;
     private int menu_depth = 0;
     private CharSequence main_title;
+    private CharSequence prev_title;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,6 +74,7 @@ public class SettingsActivity extends AppCompatActivity implements
             e.printStackTrace();
         }
         main_title = getTitle();
+        prev_title = main_title;
     }
 
     @Override
@@ -87,6 +89,7 @@ public class SettingsActivity extends AppCompatActivity implements
                 .replace(R.id.settings, fragment)
                 .addToBackStack(null)
                 .commit();
+        prev_title = getTitle();
         menu_depth++;
         setTitle(pref.getTitle());
         return true;
@@ -128,6 +131,28 @@ public class SettingsActivity extends AppCompatActivity implements
         }
     }
 
+    public static class AuxFragment extends PreferenceFragmentCompat {
+        @Override
+        public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
+            setPreferencesFromResource(R.xml.pref_aux, rootKey);
+            int t_time = InputType.TYPE_CLASS_DATETIME | InputType.TYPE_DATETIME_VARIATION_TIME;
+            setEditTextType("sleep_time_start", t_time);
+            setEditTextType("sleep_time_finish", t_time);
+        }
+
+        public void setEditTextType(String key, int type) {
+            androidx.preference.EditTextPreference edit = getPreferenceManager().findPreference(key);
+            edit.setOnBindEditTextListener(new androidx.preference.EditTextPreference.OnBindEditTextListener() {
+                @Override
+                public void onBindEditText(@NonNull EditText editText) {
+                    editText.setInputType(type);
+                    editText.setSelectAllOnFocus(true);
+                    editText.setSelection(0, editText.getText().toString().length());
+                }
+            });
+        }
+    }
+
     public static class DeviceAdminFragment extends PreferenceFragmentCompat {
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
@@ -151,6 +176,8 @@ public class SettingsActivity extends AppCompatActivity implements
         menu_depth--;
         if (menu_depth <= 1)
             setTitle(main_title);
+        else
+            setTitle(prev_title);
     }
 
     @Override

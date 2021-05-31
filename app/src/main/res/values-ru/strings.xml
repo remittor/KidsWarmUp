@@ -15,6 +15,7 @@
     <!-- Preference Titles -->
     <string name="app_close">Закрыть приложение</string>
     <string name="settings_header">Настройки</string>
+    <string name="aux_header">Доп настройки</string>
     <string name="devadm_header">Device Admin</string>
 
     <!-- Settings Preferences -->
@@ -26,5 +27,13 @@
     <string name="menu_password">Пароль</string>
     <string name="not_set">не указано</string>
     <string name="app_version">Версия приложения</string>
+
+    <!-- Aux Settings Preferences -->
+    <string name="aux_setup_title">Доп настройки</string>
+    <string name="aux_setup_summary"></string>
+    <string name="aux_title"></string>
+    <string name="aux_sleep_time_title">Время сна</string>
+    <string name="aux_sleep_time_start_title">Начало</string>
+    <string name="aux_sleep_time_finish_title">Окончание</string>
 
 </resources>
