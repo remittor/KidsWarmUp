@@ -39,9 +39,11 @@ public class MainWorker extends Worker {
         boolean sleep_active = false;
         try {
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(m_context);
+            Log.i(TAG, "doWork");
             LocalTime sleep_time_start  = LocalTime.parse(prefs.getString("sleep_time_start", ""));
             LocalTime sleep_time_finish = LocalTime.parse(prefs.getString("sleep_time_finish", ""));
-            LocalTime ctime = LocalTime.of(LocalTime.now().getHour(), LocalTime.now().getMinute());
+            LocalTime ctime = LocalTime.now();
+            //Log.i(TAG, "doWork: s = " + sleep_time_start + ", f = " + sleep_time_finish + ", ct = " + ctime);
             if (sleep_time_finish.isAfter(sleep_time_start)) {
                 if (ctime.isAfter(sleep_time_start) && ctime.isBefore(sleep_time_finish))
                     sleep_active = true;
@@ -51,6 +53,7 @@ public class MainWorker extends Worker {
             }
         } catch (Exception e) {
             sleep_active = false;
+            e.printStackTrace();
         }
         int zen_mode = 0; // getZenModeState();
         int air_mode = getAirplaneMode();
