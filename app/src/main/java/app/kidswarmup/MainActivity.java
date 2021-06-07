@@ -39,6 +39,8 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import java.io.DataOutputStream;
 import java.lang.reflect.Method;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
@@ -65,11 +67,13 @@ public class MainActivity extends Activity implements View.OnGenericMotionListen
     private int prevButton = 0;
     private DevicePolicyManager dpm;
     private MediaPlayer mediaplayer;
+    private Instant create_time;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.i(TAG, "onCreate: after_worker = " + getIntent().getBooleanExtra("after_worker", false));
+        create_time = Instant.now();
         loadPrefs();
         setContentView(R.layout.activity_main);
         mainFrame = findViewById(R.id.mainFrame);
@@ -318,7 +322,7 @@ public class MainActivity extends Activity implements View.OnGenericMotionListen
     }
 
     private void countStep() {
-        Log.i(TAG, "stepsCurrent = " + stepsCurrent + ", stepsTarget = " + stepsTarget);
+        Log.i(TAG, "stepsCurrent = " + stepsCurrent + " => " + stepsCurrent + 1 + ", stepsTarget = " + stepsTarget);
         stepsCurrent += 1;
         try {
             if (mediaplayer.isPlaying()) {
@@ -333,7 +337,10 @@ public class MainActivity extends Activity implements View.OnGenericMotionListen
         progress.setSelectNumber(stepsCurrent);
         progress.invalidate();
         if (stepsCurrent >= stepsTarget) {
-            Toast.makeText(this, "BRAVO !!!", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "!!! BRAVO !!!", Toast.LENGTH_LONG).show();
+            Duration diff = Duration.between(create_time, Instant.now());
+            if (diff.getSeconds() > 4*60)
+                initMainWorker(true, false);
             disableKioskMode();
             finish();
         }
